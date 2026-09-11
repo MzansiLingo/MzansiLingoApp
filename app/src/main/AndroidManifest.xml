@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <application
+        android:name=".MzantsiLingo"
+        android:allowBackup="true"
+        android:icon="@mipmap/ic_launcher"
+        android:label="@string/app_name"
+        android:theme="@style/Theme.MzantsiLingo"
+        android:usesCleartextTraffic="false">
+
+        <!-- SCREEN 1-4: Onboarding -->
+        <activity
+            android:name=".ui.onboarding.OnboardingActivity"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- SCREEN 5/6: Registration + Login -->
+        <activity android:name=".ui.auth.RegisterActivity" android:exported="false" />
+        <activity android:name=".ui.auth.LoginActivity" android:exported="false" />
+
+        <!-- SCREEN 7: Language Selection -->
+        <activity android:name=".ui.language.LanguageSelectionActivity" android:exported="false" />
+
+        <!-- SCREEN 8: Home Dashboard -->
+        <activity android:name=".ui.home.HomeActivity" android:exported="false" />
+
+        <!-- SCREEN 9/10/11: Lesson, Quiz, Reward popup -->
+        <activity android:name=".ui.lesson.LessonActivity" android:exported="false" />
+        <activity android:name=".ui.quiz.QuizActivity" android:exported="false" />
+
+        <!-- SCREEN 12: Rewards -->
+        <activity android:name=".ui.rewards.RewardsActivity" android:exported="false" />
+
+        <!-- SCREEN 13: Profile -->
+        <activity android:name=".ui.profile.ProfileActivity" android:exported="false" />
+
+        <!-- SCREEN 14: Settings -->
+        <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
+
+    </application>
+
+</manifest>
