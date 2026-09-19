@@ -52,3 +52,8 @@ data class UserSettings(
     val learningLanguage: String = "isiXhosa",
     val offlineLessons: Boolean = false
 )
+data class ActivityItem(
+    val id: String,
+    val description: String,   // e.g. "Completed \"greetings\" (isiXhosa)"
+    val timestamp: String? = null
+)

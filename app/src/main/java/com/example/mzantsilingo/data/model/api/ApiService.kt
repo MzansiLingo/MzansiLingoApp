@@ -24,6 +24,12 @@ interface ApiService {
     @GET("api/users/{userId}/achievements")
     suspend fun getAchievements(@Path("userId") userId: String): Response<List<Achievement>>
 
+    @GET("api/users/{userId}")
+    suspend fun getUser(@Path("userId") userId: String): Response<User>
+
+    @GET("api/users/{userId}/activity")
+    suspend fun getRecentActivity(@Path("userId") userId: String): Response<List<ActivityItem>>
+
     @PUT("api/users/{userId}/settings")
     suspend fun updateSettings(
         @Path("userId") userId: String,

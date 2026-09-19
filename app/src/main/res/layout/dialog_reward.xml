@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:gravity="center"
+    android:background="@android:color/white"
+    android:padding="32dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🎉"
+        android:textSize="40sp" />
+
+    <TextView
+        android:id="@+id/tvRewardTitle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Perfect Score!"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginTop="8dp" />
+
+    <TextView
+        android:id="@+id/tvWordsLearned"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="+4 words learned"
+        android:textColor="#666666"
+        android:layout_marginTop="4dp" />
+
+    <TextView
+        android:id="@+id/tvXpEarned"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="⭐ +45 XP"
+        android:textColor="#E67E22"
+        android:textStyle="bold"
+        android:background="#FFF3E0"
+        android:padding="8dp"
+        android:layout_marginTop="12dp" />
+
+    <TextView
+        android:id="@+id/tvAchievement"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="🏅 Achievement Unlocked: First Lesson"
+        android:textColor="#8E44AD"
+        android:background="#F3E5F5"
+        android:padding="8dp"
+        android:layout_marginTop="8dp"
+        android:visibility="gone" />
+
+    <Button
+        android:id="@+id/btnContinue"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Continue"
+        android:backgroundTint="#2E8B4F"
+        android:textColor="#FFFFFF"
+        android:layout_marginTop="24dp" />
+
+</LinearLayout>
