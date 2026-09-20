@@ -12,7 +12,7 @@ import com.example.mzantsilingo.databinding.ActivityHomeBinding
 import com.example.mzantsilingo.ui.lesson.LessonActivity
 import com.example.mzantsilingo.ui.lesson.LessonAdapter
 import kotlinx.coroutines.launch
-
+import com.example.mzantsilingo.ui.settings.SettingsActivity
 class HomeActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityHomeBinding
@@ -24,6 +24,15 @@ class HomeActivity : AppCompatActivity() {
 
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.btnSettings.setOnClickListener {
+            startActivity(
+                Intent(
+                    this,
+                    SettingsActivity::class.java
+                )
+            )
+        }
 
         setupLessonsRecyclerView()
         loadLessons()
