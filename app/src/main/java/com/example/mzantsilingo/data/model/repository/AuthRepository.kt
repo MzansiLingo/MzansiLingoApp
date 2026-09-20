@@ -57,7 +57,7 @@ class AuthRepository {
             )
 
             if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+                Result.success(response.body()!!.user)
             } else {
                 Result.failure(
                     Exception("Login failed: ${response.code()}")

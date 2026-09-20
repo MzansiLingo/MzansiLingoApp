@@ -34,9 +34,20 @@ class LoginActivity : AppCompatActivity() {
                 val result = authRepository.login(email, password)
                 result.onSuccess { user ->
 
+                    val userId = user.id
+
+                    if (userId == null) {
+                        Toast.makeText(
+                            this@LoginActivity,
+                            "Login succeeded, but user ID was not returned.",
+                            Toast.LENGTH_LONG
+                        ).show()
+                        return@onSuccess
+                    }
+
                     UserSession.saveUserId(
                         this@LoginActivity,
-                        user.id!!
+                        userId
                     )
 
                     Toast.makeText(
@@ -45,7 +56,8 @@ class LoginActivity : AppCompatActivity() {
                         Toast.LENGTH_SHORT
                     ).show()
 
-                    // Keep your existing navigation code here.
+                    startActivity(Intent(this@LoginActivity, HomeActivity::class.java))
+                    finish()
 
                 }.onFailure {
 

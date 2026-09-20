@@ -9,7 +9,9 @@ interface ApiService {
     @POST("api/auth/register")
     suspend fun register(@Body request: RegisterRequest): Response<User>
     @POST("api/auth/login")
-    suspend fun login(@Body request: LoginRequest): Response<User>
+    suspend fun login(
+        @Body request: LoginRequest
+    ): Response<LoginResponse>
 
     @GET("api/lessons")
     suspend fun getLessons(@Query("language") language: String): Response<List<Lesson>>
