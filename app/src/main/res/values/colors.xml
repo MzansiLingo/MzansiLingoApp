@@ -1,0 +1,8 @@
+<resources>
+    <color name="mzantsi_green">#2E8B4F</color>
+    <color name="mzansi_green_light">#E8F5E9</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="text_secondary">#666666</color>
+    <color name="locked_grey">#CCCCCC</color>
+</resources>
