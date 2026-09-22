@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">MzantsiLingo</string>
+    <string name="settings_title">Settings</string>
+    <string name="push_notifications">Push Notifications</string>
+    <string name="daily_reminder">Daily Reminder</string>
+    <string name="dark_mode">Dark Mode</string>
+    <string name="sound_effects">Sound Effects</string>
+    <string name="learning_language">Learning Language</string>
+    <string name="offline_lessons">Offline Lessons</string>
+    <string name="log_out">Log Out</string>
+    <string name="choose_language">Choose Learning Language</string>
+    <string name="cancel">Cancel</string>
+    <string name="language_value_format">%1$s →</string>
+</resources>
