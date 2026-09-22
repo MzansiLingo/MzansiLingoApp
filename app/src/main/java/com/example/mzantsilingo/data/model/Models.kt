@@ -7,7 +7,6 @@ data class User(
     val username: String,
     val passwordHash: String,
     val totalXp: Int = 0,
-    val streakDays: Int = 0
 )
 
 data class LoginRequest(

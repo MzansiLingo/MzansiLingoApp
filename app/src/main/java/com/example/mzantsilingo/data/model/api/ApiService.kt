@@ -34,6 +34,10 @@ interface ApiService {
     suspend fun getXp(
         @Path("userId") userId: Int
     ): Response<UserXp>
+    @GET("api/users/{userId}")
+    suspend fun getUser(
+        @Path("userId") userId: Int
+    ): Response<User>
     @PUT("api/users/{userId}/settings")
     suspend fun updateSettings(
         @Path("userId") userId: String,
