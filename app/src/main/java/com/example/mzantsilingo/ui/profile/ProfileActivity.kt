@@ -11,22 +11,27 @@ import kotlinx.coroutines.launch
 
 class ProfileActivity : AppCompatActivity() {
 
+    // Gives us access to the views on the profile screen.
     private lateinit var binding: ActivityProfileBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Set up the profile screen using View Binding.
         binding = ActivityProfileBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // Load the details of the logged-in user.
         loadUserProfile()
     }
 
+    // Gets the user's details from the backend and displays them on the screen.
     private fun loadUserProfile() {
 
         // Get the ID of the currently logged-in user.
         val userId = UserSession.getUserId(this)
 
+        // Stop if there is no active user session.
         if (userId == null) {
             Toast.makeText(
                 this,
@@ -36,26 +41,30 @@ class ProfileActivity : AppCompatActivity() {
             return
         }
 
+        // Run the API request in a coroutine so it doesn't block the app.
         lifecycleScope.launch {
+
             try {
 
-                // Request the user's profile from the backend.
+                // Ask the backend for the user's profile information.
                 val response = RetrofitClient.apiService.getUser(userId)
 
+                // Check that the request was successful and returned user data.
                 if (response.isSuccessful && response.body() != null) {
 
                     val user = response.body()!!
 
-                    // Display the user's information.
+                    // Show the user's basic information on the profile screen.
                     binding.tvFullName.text = user.fullName
                     binding.tvUsername.text = "@${user.username}"
                     binding.tvEmail.text = user.email
 
-                    // Display the user's XP.
+                    // Show the user's total XP.
                     binding.tvTotalXp.text = user.totalXp.toString()
 
                 } else {
 
+                    // Let the user know if the profile couldn't be loaded.
                     Toast.makeText(
                         this@ProfileActivity,
                         "Unable to load profile.",
@@ -65,6 +74,7 @@ class ProfileActivity : AppCompatActivity() {
 
             } catch (e: Exception) {
 
+                // Show an error if the app can't connect to the backend.
                 Toast.makeText(
                     this@ProfileActivity,
                     "Connection error: ${e.message}",

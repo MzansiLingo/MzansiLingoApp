@@ -32,20 +32,13 @@
         <!-- SCREEN 8: Home Dashboard -->
         <activity android:name=".ui.home.HomeActivity" android:exported="false" />
 
-        <!-- SCREEN 9/10/11: Lesson, Quiz, Reward popup -->
+        <!-- SCREEN 9: Lesson popup -->
         <activity android:name=".ui.lesson.LessonActivity" android:exported="false" />
-        <activity android:name=".ui.quiz.QuizActivity" android:exported="false" />
-        <activity
-            android:name=".ui.lesson.LessonCompleteActivity"
-            android:exported="false" />
 
-        <!-- SCREEN 12: Rewards -->
-        <activity android:name=".ui.rewards.RewardsActivity" android:exported="false" />
-
-        <!-- SCREEN 13: Profile -->
+        <!-- SCREEN 10: Profile -->
         <activity android:name=".ui.profile.ProfileActivity" android:exported="false" />
 
-        <!-- SCREEN 14: Settings -->
+        <!-- SCREEN 11: Settings -->
         <activity android:name=".ui.settings.SettingsActivity" android:exported="false" />
 
     </application>
