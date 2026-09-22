@@ -1,0 +1,26 @@
+# Final Simple Part 2 Checklist
+
+- [ ] App builds successfully.
+- [ ] Registration works.
+- [ ] Login works.
+- [ ] Password is protected correctly.
+- [ ] API communicates with the app.
+- [ ] User data reaches the database.
+- [ ] Lessons load.
+- [ ] Quiz works.
+- [ ] XP works.
+- [ ] Progress works.
+- [ ] Profile works.
+- [ ] Settings work.
+- [ ] Invalid input shows useful messages.
+- [ ] Smart recommendation works.
+- [ ] WordFeeder works.
+- [ ] Analytics works.
+- [ ] Cultural cards work.
+- [ ] Unit tests pass.
+- [ ] GitHub Actions passes.
+- [ ] Tested on a physical Android phone.
+- [ ] README updated.
+- [ ] Demonstration video recorded.
+- [ ] Video link added to README.
+- [ ] No passwords/API secrets committed to GitHub.
