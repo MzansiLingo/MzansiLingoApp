@@ -13,7 +13,7 @@ object RetrofitClient {
 
     // Base URL used to connect the Android emulator to the local ASP.NET Core API.
     // 10.0.2.2 refers to the host computer when using the Android Emulator.
-    private const val BASE_URL = "http://10.0.2.2:5029/"
+    private const val BASE_URL = "http://192.168.0.182:5029/"
 
     /**
      * Logs HTTP requests and responses while developing and debugging the app.

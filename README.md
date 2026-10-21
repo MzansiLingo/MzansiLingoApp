@@ -250,9 +250,9 @@ Testing was performed using the Android Emulator
 
 ## Team Members
 MzansiLingo was developed as a team project by:
-Indiphile Jobela: Android application development, backend/API development, database integration and project documentation
-Tuleka Nikelo: Application development, testing and project contributions
-Zintle Hazel Roman: N/A
+Indiphile Jobela (ST10304038): Android application development, backend/API development, database integration and project documentation
+Tuleka Nikelo(ST10448479): Application development, testing and project contributions
+Zintle Hazel Roman(ST10438046): N/A
 
 ## AI Usage
 AI was mainly used to:
