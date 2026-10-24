@@ -1,5 +1,17 @@
 # MzansiLingo
 
+![CI](https://github.com/MzansiLingo/MzansiLingoApp/actions/workflows/ci.yml/badge.svg)
+
+| | |
+|---|---|
+| **Live API** | https://mzansilingo-api-g4cvg6hyhfabgwbm.southafricanorth-01.azurewebsites.net/api/lessons?language=isiXhosa |
+| **API docs (OpenAPI)** | https://mzansilingo-api-g4cvg6hyhfabgwbm.southafricanorth-01.azurewebsites.net/openapi/v1.json |
+| **Demo video** | PASTE_LINK_HERE |
+| **APK download** | See the latest Release on this repository |
+| **Test login** | Email: `demo@mzansilingo.com`, Password: `Demo12345` (register this account once in the app) |
+
+> The API runs on free hosting, so the first request after a quiet period can take up to a minute.
+
 MzansiLingo is an Android language learning application designed to help beginners learn South African languages through simple lessons, vocabulary, interactive activities and progress tracking. The application is currently focused on helping users learn isiXhosa in a simple and engaging way. Users can create an account, log in securely, select their learning language, access lessons, learn new words, listen to pronunciation and earn XP as they complete lessons. The project was developed as part of the OPSC6312 Portfolio of Evidence and demonstrates the use of Android development, REST APIs, database integration, user authentication and version control.
 
 ## Project Purpose
