@@ -1,0 +1,23 @@
+name: CI
+on: [push, pull_request]
+
+jobs:
+  api-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.0.x'
+      - run: dotnet test MzansiLingo.API/MzansiLingo.API.Tests/MzansiLingo.API.Tests.csproj
+
+  android-tests:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - run: chmod +x gradlew
+      - run: ./gradlew testDebugUnitTest
