@@ -18,9 +18,6 @@ data class User(
     // Username used to identify the user within the application.
     val username: String,
 
-    // Stored password hash returned by the API when applicable.
-    val passwordHash: String,
-
     // Total experience points earned by the user.
     val totalXp: Int = 0,
 )
@@ -76,36 +73,8 @@ data class Word(
     val englishMeaning: String
 )
 
-/**
- * Represents a multiple-choice quiz question.
- */
-data class QuizQuestion(
-    // Unique identifier for the quiz question.
-    val id: String,
 
-    // Question or instruction displayed to the learner.
-    val prompt: String,
 
-    // Possible answers presented to the learner.
-    val options: List<String>,
-
-    // Position of the correct answer within the options list.
-    val correctAnswerIndex: Int
-)
-
-/**
- * Represents an achievement that can be earned by a user.
- */
-data class Achievement(
-    // Unique identifier for the achievement.
-    val id: String,
-
-    // Name of the achievement displayed to the user.
-    val title: String,
-
-    // Indicates whether the user has unlocked the achievement.
-    val isUnlocked: Boolean
-)
 
 /**
  * Stores the user's application and learning preferences.
@@ -147,4 +116,9 @@ data class UserXp(
 
     // User's total accumulated experience points.
     val totalXp: Int
+)
+
+/** Error body the API returns, e.g. {"message":"..."} */
+data class ApiError(
+    val message: String? = null
 )

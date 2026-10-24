@@ -13,6 +13,7 @@ import com.example.mzantsilingo.ui.lesson.LessonAdapter
 import com.example.mzantsilingo.ui.profile.ProfileActivity
 import com.example.mzantsilingo.ui.settings.SettingsActivity
 import kotlinx.coroutines.launch
+import com.example.mzantsilingo.data.local.SettingsPreferences
 
 /**
  * Home screen of the MzansiLingo application.
@@ -108,7 +109,7 @@ class HomeActivity : AppCompatActivity() {
 
                 // Request isiXhosa lessons from the REST API.
                 val response =
-                    RetrofitClient.apiService.getLessons("isiXhosa")
+                    RetrofitClient.apiService.getLessons(SettingsPreferences(this@HomeActivity).learningLanguage)
 
                 // Check that the API request was successful
                 // and that a response body was returned.

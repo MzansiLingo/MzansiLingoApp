@@ -20,7 +20,7 @@ interface ApiService {
     @POST("api/auth/register")
     suspend fun register(
         @Body request: RegisterRequest
-    ): Response<User>
+    ): Response<LoginResponse>
 
     /**
      * Authenticates an existing user.
@@ -53,22 +53,6 @@ interface ApiService {
     suspend fun getWords(
         @Path("lessonId") lessonId: Int
     ): Response<List<Word>>
-
-    /**
-     * Retrieves quiz questions for a specific lesson.
-     */
-    @GET("api/lessons/{lessonId}/quiz")
-    suspend fun getQuiz(
-        @Path("lessonId") lessonId: String
-    ): Response<List<QuizQuestion>>
-
-    /**
-     * Retrieves achievements earned by a specific user.
-     */
-    @GET("api/users/{userId}/achievements")
-    suspend fun getAchievements(
-        @Path("userId") userId: String
-    ): Response<List<Achievement>>
 
     /**
      * Adds XP to a user's account after completing a learning activity.

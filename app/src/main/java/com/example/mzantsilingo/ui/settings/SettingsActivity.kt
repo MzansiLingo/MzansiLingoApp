@@ -13,6 +13,7 @@ import com.example.mzantsilingo.data.repository.SettingsRepository
 import com.example.mzantsilingo.databinding.ActivitySettingsBinding
 import com.example.mzantsilingo.ui.auth.LoginActivity
 import kotlinx.coroutines.launch
+import com.example.mzantsilingo.data.local.UserSession
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -136,11 +137,9 @@ class SettingsActivity : AppCompatActivity() {
 
     // Sends the current settings from the device to the backend.
     private fun syncToBackend() {
+        // The ID is saved in UserSession when the user logs in.
+        val userId = UserSession.getUserId(this) ?: return
 
-        // There is nothing to sync if no user is logged in.
-        val userId = prefs.userId ?: return
-
-        // Create the settings object that will be sent to the API.
         val settings = UserSettings(
             pushNotifications = prefs.pushNotifications,
             dailyReminder = prefs.dailyReminder,
@@ -150,17 +149,20 @@ class SettingsActivity : AppCompatActivity() {
             offlineLessons = prefs.offlineLessons
         )
 
-        // Send the settings update without blocking the main thread.
         lifecycleScope.launch {
-            settingsRepository.updateSettings(userId, settings)
+            settingsRepository.updateSettings(userId.toString(), settings)
         }
     }
 
-    // Clears the saved user ID and takes the user back to the login screen.
+    // Clears the session and returns to the login screen.
     private fun logOut() {
+        UserSession.clearSession(this)
         prefs.userId = null
 
-        startActivity(Intent(this, LoginActivity::class.java))
+        val intent = Intent(this, LoginActivity::class.java).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+        }
+        startActivity(intent)
         finish()
     }
 }

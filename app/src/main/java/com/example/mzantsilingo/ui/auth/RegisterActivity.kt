@@ -47,7 +47,7 @@ class RegisterActivity : AppCompatActivity() {
 
                 result.onSuccess { user ->
 
-                    UserSession.saveUserId(this@RegisterActivity, user.id!!)
+                    user.id?.let { UserSession.saveUserId(this@RegisterActivity, it) }
 
                     Toast.makeText(
                         this@RegisterActivity,

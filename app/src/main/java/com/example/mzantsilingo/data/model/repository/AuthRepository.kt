@@ -1,71 +1,59 @@
 package com.example.mzantsilingo.data.model.repository
 
+import com.example.mzantsilingo.data.model.ApiError
 import com.example.mzantsilingo.data.model.LoginRequest
+import com.example.mzantsilingo.data.model.LoginResponse
 import com.example.mzantsilingo.data.model.RegisterRequest
 import com.example.mzantsilingo.data.model.User
+import com.example.mzantsilingo.data.model.api.ApiService
 import com.example.mzantsilingo.data.model.api.RetrofitClient
+import com.google.gson.Gson
+import retrofit2.Response
 
-class AuthRepository {
-
-    private val api = RetrofitClient.apiService
+/**
+ * Handles registration and login through the REST API.
+ * The ApiService is passed in so it can be replaced with a mock in unit tests.
+ */
+class AuthRepository(
+    private val api: ApiService = RetrofitClient.apiService
+) {
 
     suspend fun register(
         fullName: String,
         email: String,
         username: String,
         rawPassword: String
+    ): Result<User> = call("Registration failed") {
+        api.register(RegisterRequest(fullName, email, username, rawPassword))
+    }
+
+    suspend fun login(email: String, rawPassword: String): Result<User> =
+        call("Login failed") { api.login(LoginRequest(email, rawPassword)) }
+
+    // Runs an API call and turns the result into Result<User> with a readable error.
+    private suspend fun call(
+        fallback: String,
+        request: suspend () -> Response<LoginResponse>
     ): Result<User> {
         return try {
-
-            // Send registration details to the API.
-            // The server is responsible for securely hashing the password.
-            val request = RegisterRequest(
-                fullName = fullName,
-                email = email,
-                username = username,
-                password = rawPassword
-            )
-
-            val response = api.register(request)
-
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!)
+            val response = request()
+            val body = response.body()
+            if (response.isSuccessful && body != null) {
+                Result.success(body.user)
             } else {
-                Result.failure(
-                    Exception("Registration failed: ${response.code()}")
-                )
+                Result.failure(Exception(errorMessage(response, fallback)))
             }
-
         } catch (e: Exception) {
-            Result.failure(e)
+            Result.failure(Exception("Could not reach the server. Check your internet connection and try again."))
         }
     }
 
-    suspend fun login(
-        email: String,
-        rawPassword: String
-    ): Result<User> {
+    private fun errorMessage(response: Response<*>, fallback: String): String {
         return try {
-
-            // Send the password to the API.
-            // The server verifies it against the stored password hash.
-            val response = api.login(
-                LoginRequest(
-                    email = email,
-                    password = rawPassword
-                )
-            )
-
-            if (response.isSuccessful && response.body() != null) {
-                Result.success(response.body()!!.user)
-            } else {
-                Result.failure(
-                    Exception("Login failed: ${response.code()}")
-                )
-            }
-
+            val raw = response.errorBody()?.string()
+            Gson().fromJson(raw, ApiError::class.java)?.message ?: "$fallback (${response.code()})"
         } catch (e: Exception) {
-            Result.failure(e)
+            "$fallback (${response.code()})"
         }
     }
 }
