@@ -11,4 +11,5 @@
     <string name="choose_language">Choose Learning Language</string>
     <string name="cancel">Cancel</string>
     <string name="language_value_format">%1$s →</string>
+    <string name="google_web_client_id">401608097004-9g73opf42b5kkrjf20fn1ll0g21l8tmt.apps.googleusercontent.com</string>
 </resources>

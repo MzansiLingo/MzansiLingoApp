@@ -122,3 +122,8 @@ data class UserXp(
 data class ApiError(
     val message: String? = null
 )
+
+/** Sent to the API when signing in with a Google ID token. */
+data class GoogleLoginRequest(
+    val idToken: String
+)

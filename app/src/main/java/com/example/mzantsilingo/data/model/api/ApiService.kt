@@ -33,6 +33,11 @@ interface ApiService {
         @Body request: LoginRequest
     ): Response<LoginResponse>
 
+    @POST("api/auth/google")
+    suspend fun googleLogin(
+        @Body request: GoogleLoginRequest
+    ): Response<LoginResponse>
+
     /**
      * Retrieves lessons for the selected language.
      *

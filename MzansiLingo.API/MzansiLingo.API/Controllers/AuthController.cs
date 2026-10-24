@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Identity;
+﻿using Google.Apis.Auth;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MzansiLingo.API.Data;
@@ -83,6 +84,7 @@ public class AuthController : ControllerBase
             }
         });
     }
+
     [HttpPost("login")]
     public async Task<IActionResult> Login(LoginRequest request)
     {
@@ -136,5 +138,65 @@ public class AuthController : ControllerBase
                 user.Username
             }
         });
+    }
+
+    [HttpPost("google")]
+    public async Task<IActionResult> GoogleLogin(
+        [FromBody] GoogleLoginRequest request,
+        [FromServices] IConfiguration config)
+    {
+        try
+        {
+            var payload = await GoogleJsonWebSignature.ValidateAsync(
+                request.IdToken,
+                new GoogleJsonWebSignature.ValidationSettings
+                {
+                    Audience = new[] { config["Google:ClientId"] }
+                });
+
+            var user = await _context.Users
+                .FirstOrDefaultAsync(u => u.Email == payload.Email);
+
+            if (user == null)
+            {
+                var baseName = payload.Email.Split('@')[0];
+                var username = baseName;
+                while (await _context.Users.AnyAsync(u => u.Username == username))
+                {
+                    username = baseName + Random.Shared.Next(100, 999);
+                }
+
+                user = new User
+                {
+                    FullName = payload.Name ?? baseName,
+                    Email = payload.Email,
+                    Username = username
+                };
+
+                // Google users have no password, so store a random hash.
+                user.PasswordHash = _passwordHasher.HashPassword(user, Guid.NewGuid().ToString());
+                _context.Users.Add(user);
+                await _context.SaveChangesAsync();
+            }
+
+            return Ok(new
+            {
+                message = "Login successful.",
+                user = new
+                {
+                    user.Id,
+                    user.FullName,
+                    user.Email,
+                    user.Username
+                }
+            });
+        }
+        catch (InvalidJwtException)
+        {
+            return Unauthorized(new
+            {
+                message = "Invalid Google token."
+            });
+        }
     }
 }

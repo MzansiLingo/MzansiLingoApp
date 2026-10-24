@@ -1,6 +1,7 @@
 package com.example.mzantsilingo.data.model.repository
 
 import com.example.mzantsilingo.data.model.ApiError
+import com.example.mzantsilingo.data.model.GoogleLoginRequest
 import com.example.mzantsilingo.data.model.LoginRequest
 import com.example.mzantsilingo.data.model.LoginResponse
 import com.example.mzantsilingo.data.model.RegisterRequest
@@ -11,7 +12,7 @@ import com.google.gson.Gson
 import retrofit2.Response
 
 /**
- * Handles registration and login through the REST API.
+ * Handles registration, login and Google sign-in through the REST API.
  * The ApiService is passed in so it can be replaced with a mock in unit tests.
  */
 class AuthRepository(
@@ -29,6 +30,9 @@ class AuthRepository(
 
     suspend fun login(email: String, rawPassword: String): Result<User> =
         call("Login failed") { api.login(LoginRequest(email, rawPassword)) }
+
+    suspend fun googleLogin(idToken: String): Result<User> =
+        call("Google sign-in failed") { api.googleLogin(GoogleLoginRequest(idToken)) }
 
     // Runs an API call and turns the result into Result<User> with a readable error.
     private suspend fun call(
