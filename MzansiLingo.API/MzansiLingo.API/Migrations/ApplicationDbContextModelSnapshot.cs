@@ -54,6 +54,12 @@ namespace MzansiLingo.API.Migrations
 
                     MySqlPropertyBuilderExtensions.UseMySqlIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<bool>("DailyReminder")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("DarkMode")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("longtext");
@@ -62,9 +68,22 @@ namespace MzansiLingo.API.Migrations
                         .IsRequired()
                         .HasColumnType("longtext");
 
+                    b.Property<string>("LearningLanguage")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
+                    b.Property<bool>("OfflineLessons")
+                        .HasColumnType("tinyint(1)");
+
                     b.Property<string>("PasswordHash")
                         .IsRequired()
                         .HasColumnType("longtext");
+
+                    b.Property<bool>("PushNotifications")
+                        .HasColumnType("tinyint(1)");
+
+                    b.Property<bool>("SoundEffects")
+                        .HasColumnType("tinyint(1)");
 
                     b.Property<int>("TotalXp")
                         .HasColumnType("int");

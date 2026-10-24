@@ -14,23 +14,19 @@ public class UsersController : ControllerBase
     {
         _context = context;
     }
+
     // GET: api/users/1
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetUser(int userId)
     {
-        // Find the user in the database.
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
         {
-            return NotFound(new
-            {
-                message = "User not found."
-            });
+            return NotFound(new { message = "User not found." });
         }
 
-        // Return the user's profile information.
         return Ok(new
         {
             id = user.Id,
@@ -47,28 +43,20 @@ public class UsersController : ControllerBase
         int userId,
         [FromBody] AddXpRequest request)
     {
-        // Find the user in the database.
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
         {
-            return NotFound(new
-            {
-                message = "User not found."
-            });
+            return NotFound(new { message = "User not found." });
         }
 
         // Prevent invalid XP values.
         if (request.Xp <= 0)
         {
-            return BadRequest(new
-            {
-                message = "XP must be greater than zero."
-            });
+            return BadRequest(new { message = "XP must be greater than zero." });
         }
 
-        // Add the earned XP to the user's total.
         user.TotalXp += request.Xp;
 
         await _context.SaveChangesAsync();
@@ -85,16 +73,12 @@ public class UsersController : ControllerBase
     [HttpGet("{userId}/xp")]
     public async Task<IActionResult> GetXp(int userId)
     {
-        // Find the user and return their current XP.
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == userId);
 
         if (user == null)
         {
-            return NotFound(new
-            {
-                message = "User not found."
-            });
+            return NotFound(new { message = "User not found." });
         }
 
         return Ok(new
@@ -103,9 +87,43 @@ public class UsersController : ControllerBase
             totalXp = user.TotalXp
         });
     }
+
+    // PUT: api/users/1/settings
+    [HttpPut("{userId}/settings")]
+    public async Task<IActionResult> UpdateSettings(int userId, [FromBody] UserSettingsDto settings)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Id == userId);
+
+        if (user == null)
+        {
+            return NotFound(new { message = "User not found." });
+        }
+
+        user.PushNotifications = settings.PushNotifications;
+        user.DailyReminder = settings.DailyReminder;
+        user.DarkMode = settings.DarkMode;
+        user.SoundEffects = settings.SoundEffects;
+        user.LearningLanguage = settings.LearningLanguage;
+        user.OfflineLessons = settings.OfflineLessons;
+
+        await _context.SaveChangesAsync();
+
+        return Ok(settings);
+    }
 }
 
 public class AddXpRequest
 {
     public int Xp { get; set; }
+}
+
+public class UserSettingsDto
+{
+    public bool PushNotifications { get; set; }
+    public bool DailyReminder { get; set; }
+    public bool DarkMode { get; set; }
+    public bool SoundEffects { get; set; }
+    public string LearningLanguage { get; set; } = "isiXhosa";
+    public bool OfflineLessons { get; set; }
 }
