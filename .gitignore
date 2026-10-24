@@ -27,3 +27,16 @@ local.properties
 # Local user-specific files
 *.user
 *.suo
+# .NET build output
+bin/
+obj/
+publish/
+publish-out/
+*.zip
+
+# Android
+build/
+.gradle/
+local.properties
+.idea/
+*.iml
