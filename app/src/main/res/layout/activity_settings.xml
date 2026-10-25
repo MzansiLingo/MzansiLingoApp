@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Settings"
+            android:text="@string/settings_title"
             android:textSize="22sp"
             android:textStyle="bold"
             android:layout_marginTop="32dp"
@@ -29,7 +29,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Push Notifications" />
+                android:text="@string/push_notifications" />
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchPushNotifications"
                 android:layout_width="wrap_content"
@@ -47,7 +47,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Daily Reminder" />
+                android:text="@string/daily_reminder" />
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchDailyReminder"
                 android:layout_width="wrap_content"
@@ -65,7 +65,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Dark Mode" />
+                android:text="@string/dark_mode" />
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchDarkMode"
                 android:layout_width="wrap_content"
@@ -83,11 +83,35 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Sound Effects" />
+                android:text="@string/sound_effects" />
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchSoundEffects"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <!-- App Language (tap to switch the language of the whole app) -->
+        <LinearLayout
+            android:id="@+id/rowAppLanguage"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:paddingVertical="12dp"
+            android:clickable="true"
+            android:focusable="true"
+            android:background="?attr/selectableItemBackground">
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/settings_app_language" />
+            <TextView
+                android:id="@+id/tvAppLanguageValue"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="English →"
+                android:textColor="#2E8B4F" />
         </LinearLayout>
 
         <!-- Learning Language (tap to switch) -->
@@ -105,7 +129,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Learning Language" />
+                android:text="@string/learning_language" />
             <TextView
                 android:id="@+id/tvLearningLanguageValue"
                 android:layout_width="wrap_content"
@@ -125,7 +149,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="Offline Lessons" />
+                android:text="@string/offline_lessons" />
             <com.google.android.material.switchmaterial.SwitchMaterial
                 android:id="@+id/switchOfflineLessons"
                 android:layout_width="wrap_content"
@@ -136,7 +160,7 @@
             android:id="@+id/btnLogOut"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Log Out"
+            android:text="@string/log_out"
             android:textColor="#D32F2F"
             android:backgroundTint="#FFFFFF"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton"

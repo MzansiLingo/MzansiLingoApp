@@ -12,6 +12,7 @@ import kotlinx.coroutines.launch
 import java.util.Locale
 import com.example.mzantsilingo.data.local.UserSession
 import com.example.mzantsilingo.data.model.AddXpRequest
+import com.example.mzantsilingo.R
 
 /**
  * Displays the content of a selected language lesson.
@@ -283,6 +284,7 @@ class LessonActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
         // Display the current word position to the user.
         binding.tvWordCounter.text =
             "Word $currentNumber of $totalWords"
+        getString(R.string.lesson_word_progress, currentNumber, totalWords)
 
         // Calculate lesson progress as a percentage.
         val progress =
@@ -297,12 +299,14 @@ class LessonActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
             binding.btnLearned.text =
                 "Complete Lesson"
+            getString(R.string.lesson_complete_button)
 
         } else {
 
             // Keep the normal button text while there are more words to learn.
             binding.btnLearned.text =
                 "I've learned this"
+            getString(R.string.lesson_learned)
         }
     }
 

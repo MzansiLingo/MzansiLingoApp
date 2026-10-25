@@ -56,7 +56,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginStart="14dp"
                 android:layout_marginTop="3dp"
-                android:text="Continue learning isiXhosa"
+                android:text="@string/home_continue_learning"
                 android:textColor="#E8F5EE"
                 android:textSize="14sp"
                 app:layout_constraintTop_toBottomOf="@id/tvWelcome"
@@ -170,7 +170,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="📚 Progress"
+                    android:text="@string/home_progress"
                     android:textColor="#006B43"
                     android:textSize="15sp"
                     android:textStyle="bold" />
@@ -179,7 +179,7 @@
                     android:id="@+id/tvProgress"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Keep learning!"
+                    android:text="@string/home_keep_learning"
                     android:textColor="#111111"
                     android:textSize="14sp" />
 
@@ -212,7 +212,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🇿🇦 Your Mzansi learning journey"
+                android:text="@string/home_journey"
                 android:textColor="#111111"
                 android:textSize="16sp"
                 android:textStyle="bold" />
@@ -221,7 +221,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="5dp"
-                android:text="Learn a little today. Build your vocabulary every day."
+                android:text="@string/home_tagline"
                 android:textColor="#666666"
                 android:textSize="13sp" />
 
@@ -236,7 +236,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginTop="22dp"
-        android:text="Choose a lesson"
+        android:text="@string/home_choose_lesson"
         android:textColor="#111111"
         android:textSize="22sp"
         android:textStyle="bold"

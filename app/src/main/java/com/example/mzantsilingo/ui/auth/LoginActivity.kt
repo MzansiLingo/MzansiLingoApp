@@ -52,7 +52,7 @@ class LoginActivity : AppCompatActivity() {
             val password = binding.etPassword.text.toString()
 
             if (email.isEmpty() || password.isEmpty()) {
-                toast("Please fill in all fields")
+                toast(getString(R.string.msg_fill_all_fields))
                 return@setOnClickListener
             }
 
@@ -85,15 +85,15 @@ class LoginActivity : AppCompatActivity() {
         result.onSuccess { user ->
             val userId = user.id
             if (userId == null) {
-                toast("Login succeeded, but the user ID was not returned.")
+                toast(getString(R.string.msg_no_user_id))
                 return
             }
             UserSession.saveUserId(this, userId)
-            toast("Login successful!")
+            toast(getString(R.string.msg_login_success))
             startActivity(Intent(this, HomeActivity::class.java))
             finish()
         }.onFailure {
-            toast(it.message ?: "Login failed")
+            toast(it.message ?: getString(R.string.login_button))
         }
     }
 
@@ -101,7 +101,8 @@ class LoginActivity : AppCompatActivity() {
     private fun setLoading(loading: Boolean) {
         binding.btnLogin.isEnabled = !loading
         binding.btnGoogleSignIn.isEnabled = !loading
-        binding.btnLogin.text = if (loading) "Please wait..." else "Log In"
+        binding.btnLogin.text =
+            if (loading) getString(R.string.login_please_wait) else getString(R.string.login_button)
     }
 
     private fun toast(message: String) =

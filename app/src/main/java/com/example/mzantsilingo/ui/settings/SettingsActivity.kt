@@ -5,15 +5,16 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.core.os.LocaleListCompat
 import androidx.lifecycle.lifecycleScope
 import com.example.mzantsilingo.R
 import com.example.mzantsilingo.data.local.SettingsPreferences
+import com.example.mzantsilingo.data.local.UserSession
 import com.example.mzantsilingo.data.model.UserSettings
 import com.example.mzantsilingo.data.repository.SettingsRepository
 import com.example.mzantsilingo.databinding.ActivitySettingsBinding
 import com.example.mzantsilingo.ui.auth.LoginActivity
 import kotlinx.coroutines.launch
-import com.example.mzantsilingo.data.local.UserSession
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -26,27 +27,30 @@ class SettingsActivity : AppCompatActivity() {
     // Used to send the user's settings to the backend.
     private val settingsRepository = SettingsRepository()
 
-    // Languages that the user can choose from in the app.
+    // Languages that the user can LEARN.
     private val languages = listOf("isiXhosa", "Afrikaans")
+
+    // Languages the APP can be DISPLAYED in: language tag to its own name.
+    private val appLanguages = listOf(
+        "en" to "English",
+        "xh" to "isiXhosa",
+        "af" to "Afrikaans"
+    )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Set up the settings screen using View Binding.
         binding = ActivitySettingsBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Load the saved settings from the device.
         prefs = SettingsPreferences(this)
         loadCurrentSettings()
 
-        // Save the notification setting whenever the switch is changed.
         binding.switchPushNotifications.setOnCheckedChangeListener { _, isChecked ->
             prefs.pushNotifications = isChecked
             syncToBackend()
         }
 
-        // Save the daily reminder setting when it is changed.
         binding.switchDailyReminder.setOnCheckedChangeListener { _, isChecked ->
             prefs.dailyReminder = isChecked
             syncToBackend()
@@ -62,32 +66,24 @@ class SettingsActivity : AppCompatActivity() {
             )
 
             syncToBackend()
-
-            // Recreate the activity so the new theme can be applied.
             recreate()
         }
 
-        // Save the sound effects setting when it is changed.
         binding.switchSoundEffects.setOnCheckedChangeListener { _, isChecked ->
             prefs.soundEffects = isChecked
             syncToBackend()
         }
 
-        // Save the offline lessons setting when it is changed.
         binding.switchOfflineLessons.setOnCheckedChangeListener { _, isChecked ->
             prefs.offlineLessons = isChecked
             syncToBackend()
         }
 
-        // Open the language picker when the language row is selected.
-        binding.rowLearningLanguage.setOnClickListener {
-            showLanguagePicker()
-        }
+        // Open the language pickers.
+        binding.rowAppLanguage.setOnClickListener { showAppLanguagePicker() }
+        binding.rowLearningLanguage.setOnClickListener { showLanguagePicker() }
 
-        // Log the user out when the logout button is pressed.
-        binding.btnLogOut.setOnClickListener {
-            logOut()
-        }
+        binding.btnLogOut.setOnClickListener { logOut() }
     }
 
     // Load the saved settings and show them on the screen.
@@ -99,38 +95,49 @@ class SettingsActivity : AppCompatActivity() {
         binding.switchOfflineLessons.isChecked = prefs.offlineLessons
         binding.tvLearningLanguageValue.text =
             getString(R.string.language_value_format, prefs.learningLanguage)
+        binding.tvAppLanguageValue.text =
+            getString(R.string.language_value_format, currentAppLanguageName())
+    }
+
+    // The name of the language the app is currently being displayed in.
+    private fun currentAppLanguageName(): String {
+        val tag = resources.configuration.locales[0].language
+        return appLanguages.firstOrNull { it.first == tag }?.second ?: "English"
+    }
+
+    // Lets the user change the language of the whole app (English, isiXhosa, Afrikaans).
+    private fun showAppLanguagePicker() {
+        val names = appLanguages.map { it.second }.toTypedArray()
+        val currentTag = resources.configuration.locales[0].language
+        val currentIndex = appLanguages.indexOfFirst { it.first == currentTag }.coerceAtLeast(0)
+
+        AlertDialog.Builder(this)
+            .setTitle(R.string.settings_app_language)
+            .setSingleChoiceItems(names, currentIndex) { dialog, which ->
+                dialog.dismiss()
+                // AppCompat saves this choice and recreates the screens in the new language.
+                AppCompatDelegate.setApplicationLocales(
+                    LocaleListCompat.forLanguageTags(appLanguages[which].first)
+                )
+            }
+            .setNegativeButton(R.string.cancel, null)
+            .show()
     }
 
     // Shows a small list where the user can choose their learning language.
     private fun showLanguagePicker() {
-
-        // Find which language is currently selected.
         val currentIndex = languages.indexOf(prefs.learningLanguage).coerceAtLeast(0)
 
         AlertDialog.Builder(this)
             .setTitle(R.string.choose_language)
-
-            // Display the available languages as selectable options.
             .setSingleChoiceItems(languages.toTypedArray(), currentIndex) { dialog, which ->
-
-                // Get the language selected by the user.
                 val selected = languages[which]
-
-                // Save the selected language locally.
                 prefs.learningLanguage = selected
-
-                // Update the language shown on the settings screen.
                 binding.tvLearningLanguageValue.text =
                     getString(R.string.language_value_format, selected)
-
-                // Send the updated settings to the backend.
                 syncToBackend()
-
-                // Close the language picker.
                 dialog.dismiss()
             }
-
-            // Allow the user to close the dialog without making a change.
             .setNegativeButton(R.string.cancel, null)
             .show()
     }

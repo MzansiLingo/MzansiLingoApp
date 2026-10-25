@@ -10,6 +10,7 @@ import com.example.mzantsilingo.databinding.ActivityRegisterBinding
 import com.example.mzantsilingo.ui.language.LanguageSelectionActivity
 import kotlinx.coroutines.launch
 import com.example.mzantsilingo.data.local.UserSession
+import com.example.mzantsilingo.R
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -29,11 +30,13 @@ class RegisterActivity : AppCompatActivity() {
 
             if (fullName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty()) {
                 Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
+                getString(R.string.msg_fill_all_fields)
                 return@setOnClickListener
             }
 
             if (password.length < 8) {
                 Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show()
+                getString(R.string.msg_password_min)
                 return@setOnClickListener
             }
 
@@ -54,6 +57,7 @@ class RegisterActivity : AppCompatActivity() {
                         "Account created!",
                         Toast.LENGTH_SHORT
                     ).show()
+                    getString(R.string.msg_account_created)
 
                     startActivity(
                         Intent(

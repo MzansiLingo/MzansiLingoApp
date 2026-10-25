@@ -12,7 +12,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Welcome Back"
+            android:text="@string/login_title"
             android:textSize="24sp"
             android:textStyle="bold"
             android:layout_marginTop="80dp" />
@@ -20,14 +20,14 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Log in to continue learning"
+            android:text="@string/login_subtitle"
             android:textColor="#666666"
             android:layout_marginBottom="24dp" />
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Email Address"
+            android:text="@string/label_email"
             android:textStyle="bold"
             android:textSize="13sp" />
         <EditText
@@ -40,7 +40,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Password"
+            android:text="@string/label_password"
             android:textStyle="bold"
             android:textSize="13sp"
             android:layout_marginTop="16dp" />
@@ -48,14 +48,14 @@
             android:id="@+id/etPassword"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="Your password"
+            android:hint="@string/hint_password"
             android:inputType="textPassword" />
 
         <Button
             android:id="@+id/btnLogin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Log In"
+            android:text="@string/login_button"
             android:backgroundTint="#2E8B4F"
             android:textColor="#FFFFFF"
             android:layout_marginTop="24dp" />
@@ -64,7 +64,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="— or —"
+            android:text="@string/login_or"
             android:textColor="#999999"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="8dp" />
@@ -73,7 +73,7 @@
             android:id="@+id/btnGoogleSignIn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Sign in with Google"
+            android:text="@string/login_google"
             android:backgroundTint="#FFFFFF"
             android:textColor="#000000"
             style="@style/Widget.MaterialComponents.Button.OutlinedButton" />
@@ -83,7 +83,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:text="No account? Sign up"
+            android:text="@string/login_signup_link"
             android:layout_marginTop="20dp"
             android:layout_marginBottom="24dp" />
 

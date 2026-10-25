@@ -66,7 +66,6 @@ dependencies {
 
     // Testing
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
-    testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")
     testImplementation("junit:junit:4.13.2")
     testImplementation("org.mockito:mockito-core:5.12.0")
     testImplementation("androidx.arch.core:core-testing:2.2.0")

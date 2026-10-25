@@ -14,7 +14,7 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="24dp"
         android:layout_marginTop="32dp"
-        android:text="My Profile"
+        android:text="@string/profile_title"
         android:textColor="#007A4D"
         android:textSize="28sp"
         android:textStyle="bold"
@@ -123,7 +123,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="4dp"
-                android:text="Total XP"
+                android:text="@string/profile_total_xp"
                 android:textColor="#666666"
                 android:textSize="14sp" />
 

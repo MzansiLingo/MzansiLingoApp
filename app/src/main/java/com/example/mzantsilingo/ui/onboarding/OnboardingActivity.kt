@@ -15,42 +15,35 @@ class OnboardingActivity : AppCompatActivity() {
     // Keeps track of which onboarding page the user is currently viewing.
     private var currentPage = 0
 
-    // The title shown on each onboarding page.
-    private val titles = arrayOf(
-        "Welcome to MzansiLingo",
-        "Learn isiXhosa",
-        "Practice Every Day",
-        "Start Your Journey"
+    // String resource IDs (not text) so the text follows the app language.
+    private val titles = intArrayOf(
+        R.string.onboarding_title_1,
+        R.string.onboarding_title_2,
+        R.string.onboarding_title_3,
+        R.string.onboarding_title_4
     )
 
-    // The description shown below each page title.
-    private val descriptions = arrayOf(
-        "Learn isiXhosa through simple lessons, practice and interactive exercises.",
-        "Build your vocabulary with useful words and phrases that you can use in everyday conversations.",
-        "Complete interactive exercises and build your knowledge step by step.",
-        "Create your account and start learning isiXhosa with MzansiLingo."
+    private val descriptions = intArrayOf(
+        R.string.onboarding_desc_1,
+        R.string.onboarding_desc_2,
+        R.string.onboarding_desc_3,
+        R.string.onboarding_desc_4
     )
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Set up the onboarding screen using View Binding.
         binding = ActivityOnboardingBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Show the first onboarding page when the screen opens.
         updatePage()
 
         // Move to the next page when the Next button is pressed.
         binding.btnNext.setOnClickListener {
-
-            // Check if there are still more onboarding pages to show.
             if (currentPage < titles.lastIndex) {
                 currentPage++
                 updatePage()
             } else {
-
-                // Open registration after the last onboarding page.
                 openRegister()
             }
         }
@@ -63,17 +56,16 @@ class OnboardingActivity : AppCompatActivity() {
 
     // Updates the screen with the information for the current page.
     private fun updatePage() {
-        binding.tvPageNumber.text = "${currentPage + 1} of ${titles.size}"
-        binding.tvTitle.text = titles[currentPage]
-        binding.tvDescription.text = descriptions[currentPage]
+        binding.tvPageNumber.text =
+            getString(R.string.page_of_format, currentPage + 1, titles.size)
+        binding.tvTitle.setText(titles[currentPage])
+        binding.tvDescription.setText(descriptions[currentPage])
 
         // Change the button text on the final page.
-        binding.btnNext.text =
-            if (currentPage == titles.lastIndex) {
-                "Create Account"
-            } else {
-                "Next"
-            }
+        binding.btnNext.setText(
+            if (currentPage == titles.lastIndex) R.string.register_title
+            else R.string.onboarding_next
+        )
     }
 
     // Takes the user to the registration screen.

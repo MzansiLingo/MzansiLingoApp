@@ -101,7 +101,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="28dp"
-                android:text="🔊 Listen" />
+                android:text="@string/lesson_listen" />
 
         </LinearLayout>
 
@@ -112,7 +112,7 @@
         android:id="@+id/btnLearned"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="I've learned this"
+        android:text="@string/lesson_learned"
         android:textSize="16sp"
         android:padding="12dp"
         app:layout_constraintBottom_toBottomOf="parent"
