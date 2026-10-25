@@ -1,5 +1,17 @@
 # MzansiLingo
 
+![CI](https://github.com/MzansiLingo/MzansiLingoApp/actions/workflows/ci.yml/badge.svg)
+
+| | |
+|---|---|
+| **Live API** | https://mzansilingo-api-g4cvg6hyhfabgwbm.southafricanorth-01.azurewebsites.net/api/lessons?language=isiXhosa |
+| **API docs (OpenAPI)** | https://mzansilingo-api-g4cvg6hyhfabgwbm.southafricanorth-01.azurewebsites.net/openapi/v1.json |
+| **Demo video** | PASTE_LINK_HERE |
+| **APK download** | See the latest Release on this repository |
+| **Test login** | Email: `demo@mzansilingo.com`, Password: `Demo12345` (register this account once in the app) |
+
+> The API runs on free hosting, so the first request after a quiet period can take up to a minute.
+
 MzansiLingo is an Android language learning application designed to help beginners learn South African languages through simple lessons, vocabulary, interactive activities and progress tracking. The application is currently focused on helping users learn isiXhosa in a simple and engaging way. Users can create an account, log in securely, select their learning language, access lessons, learn new words, listen to pronunciation and earn XP as they complete lessons. The project was developed as part of the OPSC6312 Portfolio of Evidence and demonstrates the use of Android development, REST APIs, database integration, user authentication and version control.
 
 ## Project Purpose
@@ -89,12 +101,13 @@ The Android app uses Retrofit to send requests to the API. The API then processe
 |---|---|---|
 | POST | `/api/auth/register` | Registers a new user |
 | POST | `/api/auth/login` | Logs an existing user in |
+POST / `/api/auth/google | Signs in with a Google ID token. |
 
 ### Lessons
 
 | Method | Endpoint | What it does |
 |---|---|---|
-| GET | `/api/lessons?language=isiXhosa` | Gets the available isiXhosa lessons |
+| Gets the available isiXhosa lessons |
 | GET | `/api/lessons/{id}` | Gets a specific lesson |
 
 ### Learning Content
@@ -102,7 +115,7 @@ The Android app uses Retrofit to send requests to the API. The API then processe
 | Method | Endpoint | What it does |
 |---|---|---|
 | GET | `/api/lessons/{lessonId}/words` | Gets the words for a lesson |
-| GET | `/api/lessons/{lessonId}/quiz` | Gets quiz questions for a lesson |
+| Gets quiz questions for a lesson |
 
 ### User Information
 
@@ -111,7 +124,7 @@ The Android app uses Retrofit to send requests to the API. The API then processe
 | GET | `/api/users/{userId}` | Gets the user's profile |
 | GET | `/api/users/{userId}/xp` | Gets the user's XP |
 | POST | `/api/users/{userId}/xp` | Adds XP to the user's account |
-| GET | `/api/users/{userId}/achievements` | Gets the user's achievements |
+| Gets the user's achievements |
 | PUT | `/api/users/{userId}/settings` | Updates the user's settings |
 
 The API returns data to the Android application in JSON format.
@@ -192,43 +205,29 @@ To run MzansiLingo, the following software is required:
 2. Start MySQL.
 3. Make sure the `MzansiLingoDb` database is available.
 
-### Start the API
-1. Open the `MzansiLingo.API` project in Visual Studio.
-2. Run the ASP.NET Core Web API.
-
-### Start the Android App
-1. Open the MzansiLingo project in Android Studio.
-2. Start an Android Emulator or connect an Android device.
-3. Run the application.
-4. Create an account or log in with an existing account.
-5. Select a learning language.
-6. Open the available lessons from the Home screen.
-
 ## Testing
-The following areas were tested:
 
-- User registration
-- User login
-- Incorrect login details
-- Password validation
-- Language selection
-- Loading lessons from the REST API
-- Loading lesson vocabulary
-- Completing a lesson
-- Adding XP
-- Viewing the user profile
-- Updating application settings
-- Dark mode
-- Logging out
-- API and database communication
-Testing was performed using the Android Emulator
+Automated tests run on every push through GitHub Actions (see the badge above).
 
-## Screenshots
+| Area | Tests | Tool |
+|---|---|---|
+| API (6) | Register success, duplicate email, missing fields; login success and wrong password; lessons filtered by language | xUnit with an in-memory database |
+| Android (5) | Login success and failure, register success and duplicate email, Google sign-in | JUnit with MockWebServer |
+
+![CI passing](ci-passing.png)
+
+Run locally:
+- API: `dotnet test` in `MzansiLingo.API`
+- Android: `./gradlew testDebugUnitTest`
+
+Manual tests: register, login, Google sign-in, lessons, XP, settings, logout.https://github.com/MzansiLingo/MzansiLingoApp.git
+The repository contains the Android application, backend API and project documentation.
+
 ### Onboarding
 ![Onboarding](<Onboarding 1-1.png>)
-![alt text](<Onboarding 4-1.png>) 
-![alt text](<Onboarding 2-1.png>) 
-![alt text](<Onboarding 3-1.png>)
+![Onboarding](<Onboarding 4-1.png>)
+![Onboarding](<Onboarding 2-1.png>)
+![Onboarding](<Onboarding 3-1.png>)
 
 ### Register
 ![Register](Register-1.png)
@@ -250,23 +249,22 @@ Testing was performed using the Android Emulator
 
 ## Team Members
 MzansiLingo was developed as a team project by:
-Indiphile Jobela (ST10304038): Android application development, backend/API development, database integration and project documentation
-Tuleka Nikelo(ST10448479): Application development, testing and project contributions
-Zintle Hazel Roman(ST10438046): N/A
+
+- Indiphile Jobela (ST10304038): Android application development, backend/API development, database integration and project documentation
+- Tuleka Nikelo (ST10448479): Application development, testing, Azure hosting, Google sign-in, automated tests and CI
+- Zintle Hazel Roman (ST10438046): N/A
 
 ## AI Usage
 AI was mainly used to:
 
 - Help explain programming concepts and errors.
-- Assist with debugging and troubleshooting.
+- Assist with debugging and troubleshooting, including deployment and CI problems.
 - Provide suggestions for improving code structure.
-- Help with understanding Kotlin, Android development, C#, ASP.NET Core and SQL and how to merge them together.
-- Assisted with project documentation as far as professional wording and laying out the strructure of the ReadMe.
+- Help with understanding Kotlin, Android development, C#, ASP.NET Core and SQL and how to connect them together.
+- Assist with project documentation, including the layout and wording of this README.
 
 The team reviewed and tested the suggestions provided by AI before using them in the project. The final implementation, testing and integration of the application were carried out by the team.
 
 ## Project Repository
-
-The complete MzansiLingo source code is available on GitHub.
-https://github.com/MzansiLingo/MzansiLingoApp.git
-The repository contains the Android application, backend API and project documentation.
+The complete MzansiLingo source code is available on GitHub:
+https://github.com/MzansiLingo/MzansiLingoApp
