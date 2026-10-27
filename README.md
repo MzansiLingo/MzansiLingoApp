@@ -254,16 +254,6 @@ MzansiLingo was developed as a team project by:
 - Tuleka Nikelo (ST10448479): Application development, testing, Azure hosting, Google sign-in, automated tests and CI
 - Zintle Hazel Roman (ST10438046): N/A
 
-## AI Usage
-AI was mainly used to:
-
-- Help explain programming concepts and errors.
-- Assist with debugging and troubleshooting, including deployment and CI problems.
-- Provide suggestions for improving code structure.
-- Help with understanding Kotlin, Android development, C#, ASP.NET Core and SQL and how to connect them together.
-- Assist with project documentation, including the layout and wording of this README.
-
-The team reviewed and tested the suggestions provided by AI before using them in the project. The final implementation, testing and integration of the application were carried out by the team.
 
 ## Project Repository
 The complete MzansiLingo source code is available on GitHub:
