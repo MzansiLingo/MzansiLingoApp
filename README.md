@@ -6,7 +6,7 @@
 |---|---|
 | **Live API** | https://mzansilingo-api-g4cvg6hyhfabgwbm.southafricanorth-01.azurewebsites.net/api/lessons?language=isiXhosa |
 | **API docs (OpenAPI)** | https://mzansilingo-api-g4cvg6hyhfabgwbm.southafricanorth-01.azurewebsites.net/openapi/v1.json |
-| **Demo video** | PASTE_LINK_HERE |
+| **Demo video** | https://youtu.be/BZ6D-3YkIVg|
 | **APK download** | See the latest Release on this repository |
 | **Test login** | Email: `demo@mzansilingo.com`, Password: `Demo12345` (register this account once in the app) |
 
