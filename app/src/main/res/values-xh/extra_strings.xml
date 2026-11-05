@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="msg_account_created_login">I-akhawunti yenziwe! Nceda ungene.</string>
+    <string name="lesson_saving">Iyagcina...</string>
+    <string name="xp_format">%1$d XP</string>
+    <string name="msg_session_missing">Iseshoni yakho iphelile. Nceda ungene kwakhona.</string>
+    <string name="msg_xp_failed">Ii-XP zakho azigcinwanga. Nceda uzame kwakhona.</string>
+    <string name="offline_showing_saved">Awuxhumekanga ku-intanethi. Kubonisa izifundo zakho ezigciniweyo.</string>
+    <string name="offline_no_saved">Akukho unxibelelwano kwaye azikho izifundo ezigciniweyo. Vula Izifundo Ze-offline kuMiseko usekwi-intanethi.</string>
+    <string name="offline_xp_saved">Akukho unxibelelwano. Ii-XP zakho zigciniwe kwaye ziza kulayishwa ngokuzenzekelayo.</string>
+    <string name="offline_downloaded">Izifundo ezi-%1$d zigciniwe zokusetyenziswa ngaphandle kwe-intanethi</string>
+    <string name="offline_download_failed">Azikwazanga ukulandwa izifundo. Khangela unxibelelwano uzame kwakhona.</string>
+</resources>

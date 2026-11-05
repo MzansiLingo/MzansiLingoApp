@@ -9,10 +9,7 @@ import com.example.mzantsilingo.ui.auth.RegisterActivity
 
 class OnboardingActivity : AppCompatActivity() {
 
-    // Gives us access to the views on the onboarding screen.
     private lateinit var binding: ActivityOnboardingBinding
-
-    // Keeps track of which onboarding page the user is currently viewing.
     private var currentPage = 0
 
     // String resource IDs (not text) so the text follows the app language.
@@ -38,7 +35,6 @@ class OnboardingActivity : AppCompatActivity() {
 
         updatePage()
 
-        // Move to the next page when the Next button is pressed.
         binding.btnNext.setOnClickListener {
             if (currentPage < titles.lastIndex) {
                 currentPage++
@@ -48,27 +44,25 @@ class OnboardingActivity : AppCompatActivity() {
             }
         }
 
-        // Allow the user to skip the onboarding and go straight to registration.
+        // Skip the onboarding and go straight to the Register screen.
+        // (After registering, the user logs in, and then reaches Home.)
         binding.btnSkip.setOnClickListener {
             openRegister()
         }
     }
 
-    // Updates the screen with the information for the current page.
     private fun updatePage() {
         binding.tvPageNumber.text =
             getString(R.string.page_of_format, currentPage + 1, titles.size)
         binding.tvTitle.setText(titles[currentPage])
         binding.tvDescription.setText(descriptions[currentPage])
 
-        // Change the button text on the final page.
         binding.btnNext.setText(
             if (currentPage == titles.lastIndex) R.string.register_title
             else R.string.onboarding_next
         )
     }
 
-    // Takes the user to the registration screen.
     private fun openRegister() {
         startActivity(Intent(this, RegisterActivity::class.java))
         finish()

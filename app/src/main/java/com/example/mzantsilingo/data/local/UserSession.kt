@@ -4,26 +4,16 @@ import android.content.Context
 
 /**
  * Manages the currently logged-in user's session using SharedPreferences.
- *
- * The user's ID is stored locally so that other parts of the application
- * can identify the logged-in user without requiring the user to log in again.
  */
 object UserSession {
 
-    // Name of the SharedPreferences file used to store the user's session.
     private const val PREF_NAME = "MzansiLingoSession"
-
-    // Key used to store and retrieve the logged-in user's ID.
     private const val KEY_USER_ID = "user_id"
 
     /**
-     * Saves the logged-in user's ID to local storage.
-     *
-     * @param context Application or Activity context used to access SharedPreferences.
-     * @param userId The unique ID of the authenticated user.
+     * Saves the authenticated user's ID.
      */
     fun saveUserId(context: Context, userId: Int) {
-
         context.getSharedPreferences(
             PREF_NAME,
             Context.MODE_PRIVATE
@@ -34,33 +24,28 @@ object UserSession {
     }
 
     /**
-     * Retrieves the logged-in user's ID from local storage.
-     *
-     * @param context Application or Activity context used to access SharedPreferences.
-     * @return The stored user ID, or null if no user session exists.
+     * Retrieves the authenticated user's ID.
+     * Returns null if no valid user ID is stored.
      */
     fun getUserId(context: Context): Int? {
-
         val preferences = context.getSharedPreferences(
             PREF_NAME,
             Context.MODE_PRIVATE
         )
 
-        // Check whether a user ID has previously been stored.
         if (!preferences.contains(KEY_USER_ID)) {
             return null
         }
 
-        return preferences.getInt(KEY_USER_ID, -1)
+        val userId = preferences.getInt(KEY_USER_ID, -1)
+
+        return userId.takeIf { it > 0 }
     }
 
     /**
-     * Clears all stored session information.
-     *
-     * This is used when the user logs out of the application.
+     * Clears the user's session when they log out.
      */
     fun clearSession(context: Context) {
-
         context.getSharedPreferences(
             PREF_NAME,
             Context.MODE_PRIVATE

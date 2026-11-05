@@ -47,6 +47,9 @@ class LoginActivity : AppCompatActivity() {
         binding = ActivityLoginBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
+        // After registering, the email is filled in so the user only has to type the password.
+        intent.getStringExtra("EMAIL")?.let { binding.etEmail.setText(it) }
+
         binding.btnLogin.setOnClickListener {
             val email = binding.etEmail.text.toString().trim()
             val password = binding.etPassword.text.toString()

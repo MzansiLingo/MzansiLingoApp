@@ -20,7 +20,7 @@ class LessonCompleteActivity : AppCompatActivity() {
 
         // Get the number of words learned and the XP earned from the previous screen.
         val wordsLearned = intent.getIntExtra("WORDS_LEARNED", 0)
-        val xpEarned = intent.getIntExtra("XP_EARNED", 50)
+        val xpEarned = intent.getIntExtra("XP_EARNED", 0)
 
         // Show the XP earned and how many words the user learned.
         binding.tvXpEarned.text = "+$xpEarned XP"

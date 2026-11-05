@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using MzansiLingo.API.Data;
+using MzansiLingo.API.Models;
 
 namespace MzansiLingo.API.Controllers;
 
@@ -16,9 +17,15 @@ public class UsersController : ControllerBase
     }
 
     // GET: api/users/1
+
     [HttpGet("{userId}")]
     public async Task<IActionResult> GetUser(int userId)
     {
+        if (userId <= 0)
+        {
+            return BadRequest(new { message = "Invalid user ID." });
+        }
+
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Id == userId);
 
@@ -33,9 +40,10 @@ public class UsersController : ControllerBase
             fullName = user.FullName,
             email = user.Email,
             username = user.Username,
-            totalXp = user.TotalXp,
+            totalXp = user.TotalXp
         });
     }
+
 
     // POST: api/users/1/xp
     [HttpPost("{userId}/xp")]
@@ -110,6 +118,91 @@ public class UsersController : ControllerBase
         await _context.SaveChangesAsync();
 
         return Ok(settings);
+    }
+    [HttpPost("{userId}/completed-lessons")]
+    public async Task<IActionResult> CompleteLesson(
+    int userId,
+    [FromBody] CompletedLessonRequest request)
+    {
+        if (userId <= 0 || request.LessonId <= 0)
+        {
+            return BadRequest(new { message = "Invalid user ID or lesson ID." });
+        }
+
+        var userExists = await _context.Users
+            .AnyAsync(user => user.Id == userId);
+
+        if (!userExists)
+        {
+            return NotFound(new { message = "User not found." });
+        }
+
+        var lessonExists = await _context.Lessons
+            .AnyAsync(lesson => lesson.Id == request.LessonId);
+
+        if (!lessonExists)
+        {
+            return NotFound(new { message = "Lesson not found." });
+        }
+
+        var completedLesson = await _context.CompletedLessons
+            .FirstOrDefaultAsync(completed =>
+                completed.UserId == userId &&
+                completed.LessonId == request.LessonId);
+
+        if (completedLesson == null)
+        {
+            completedLesson = new CompletedLesson
+            {
+                UserId = userId,
+                LessonId = request.LessonId,
+                CompletedAt = DateTime.UtcNow
+            };
+
+            _context.CompletedLessons.Add(completedLesson);
+            await _context.SaveChangesAsync();
+        }
+
+        return Ok(new
+        {
+            message = "Lesson completion recorded.",
+            userId = completedLesson.UserId,
+            lessonId = completedLesson.LessonId,
+            completedAt = completedLesson.CompletedAt
+        });
+    }
+    [HttpGet("{userId}/completed-lessons")]
+    public async Task<IActionResult> GetCompletedLessons(int userId)
+    {
+        if (userId <= 0)
+        {
+            return BadRequest(new { message = "Invalid user ID." });
+        }
+
+        var userExists = await _context.Users
+            .AnyAsync(user => user.Id == userId);
+
+        if (!userExists)
+        {
+            return NotFound(new { message = "User not found." });
+        }
+
+        var completedLessons = await _context.CompletedLessons
+            .Where(completed => completed.UserId == userId)
+            .OrderByDescending(completed => completed.CompletedAt)
+            .Select(completed => new
+            {
+                lessonId = completed.LessonId,
+                completedAt = completed.CompletedAt
+            })
+            .ToListAsync();
+
+        return Ok(new
+        {
+            userId,
+            completedCount = completedLessons.Count,
+            completedLessons
+        });
     }
 }
 

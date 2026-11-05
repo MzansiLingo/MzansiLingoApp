@@ -13,40 +13,35 @@ if (!string.IsNullOrEmpty(port))
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")!;
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
+    options.UseMySql(
+        connectionString,
+        new MySqlServerVersion(new Version(8, 4, 11))
+    ));
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
 
 var app = builder.Build();
 
-// Create/update the tables and add starter lessons when the API starts.
-using (var scope = app.Services.CreateScope())
+// Create/update the tables and make sure the lessons and words are correct.
+// If the database is still waking up, try a few times instead of crashing the API.
+for (var attempt = 1; attempt <= 3; attempt++)
 {
-    var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    db.Database.Migrate();
-
-    if (!db.Lessons.Any())
+    try
     {
-        var greetings = new Lesson { Title = "Greetings", Description = "Say hello in isiXhosa", Language = "isiXhosa" };
-        var numbers = new Lesson { Title = "Numbers 1-5", Description = "Count in isiXhosa", Language = "isiXhosa" };
-        var afrikaans = new Lesson { Title = "Greetings", Description = "Say hello in Afrikaans", Language = "Afrikaans" };
-        db.Lessons.AddRange(greetings, numbers, afrikaans);
-        db.SaveChanges();
-
-        db.Words.AddRange(
-            new Word { LessonId = greetings.Id, XhosaWord = "Molo", EnglishMeaning = "Hello" },
-            new Word { LessonId = greetings.Id, XhosaWord = "Enkosi", EnglishMeaning = "Thank you" },
-            new Word { LessonId = greetings.Id, XhosaWord = "Hamba kakuhle", EnglishMeaning = "Go well" },
-            new Word { LessonId = greetings.Id, XhosaWord = "Unjani?", EnglishMeaning = "How are you?" },
-            new Word { LessonId = numbers.Id, XhosaWord = "Nye", EnglishMeaning = "One" },
-            new Word { LessonId = numbers.Id, XhosaWord = "Mbini", EnglishMeaning = "Two" },
-            new Word { LessonId = numbers.Id, XhosaWord = "Ntathu", EnglishMeaning = "Three" },
-            new Word { LessonId = numbers.Id, XhosaWord = "Ne", EnglishMeaning = "Four" },
-            new Word { LessonId = numbers.Id, XhosaWord = "Ntlanu", EnglishMeaning = "Five" },
-            new Word { LessonId = afrikaans.Id, XhosaWord = "Hallo", EnglishMeaning = "Hello" },
-            new Word { LessonId = afrikaans.Id, XhosaWord = "Dankie", EnglishMeaning = "Thank you" });
-        db.SaveChanges();
+        using var scope = app.Services.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        db.Database.Migrate();
+        SeedData.Ensure(db);
+        break;
+    }
+    catch (Exception ex)
+    {
+        app.Logger.LogError(ex, "Database start-up attempt {Attempt} of 3 failed", attempt);
+        if (attempt < 3)
+        {
+            Thread.Sleep(5000);
+        }
     }
 }
 

@@ -61,7 +61,7 @@ class SettingsPreferences(context: Context) {
 
     // Saves whether offline lessons have been enabled.
     var offlineLessons: Boolean
-        get() = prefs.getBoolean(KEY_OFFLINE_LESSONS, false)
+        get() = prefs.getBoolean(KEY_OFFLINE_LESSONS, true)
         set(value) = prefs.edit().putBoolean(KEY_OFFLINE_LESSONS, value).apply()
 
     // Applies the saved dark mode setting to the app.

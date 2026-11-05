@@ -2,6 +2,7 @@ plugins {
     id("com.android.application")
     id("org.jetbrains.kotlin.android")
     id("org.jetbrains.kotlin.kapt")
+    id("com.google.gms.google-services")
 }
 
 android {
@@ -60,9 +61,13 @@ dependencies {
     // Google Sign-In SDK — satisfies SSO requirement
     implementation("com.google.android.gms:play-services-auth:21.2.0")
 
-    // Local storage for settings / Room if you extend offline lessons
+    // Offline mode: Room saves lessons, words and pending XP on the device
     implementation("androidx.room:room-runtime:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
     kapt("androidx.room:room-compiler:2.6.1")
+
+    // Offline sync: uploads XP earned offline once the connection returns
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
 
     // Testing
     testImplementation("com.squareup.okhttp3:mockwebserver:4.12.0")

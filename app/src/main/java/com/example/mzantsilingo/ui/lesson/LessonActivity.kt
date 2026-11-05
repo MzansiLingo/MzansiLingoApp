@@ -1,412 +1,324 @@
 package com.example.mzantsilingo.ui.lesson
 
+import android.content.Intent
 import android.os.Bundle
 import android.speech.tts.TextToSpeech
+import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.mzantsilingo.R
+import com.example.mzantsilingo.data.local.SettingsPreferences
+import com.example.mzantsilingo.data.local.UserSession
 import com.example.mzantsilingo.data.model.Word
-import com.example.mzantsilingo.data.model.api.RetrofitClient
+import com.example.mzantsilingo.data.repository.LoadResult
+import com.example.mzantsilingo.data.repository.OfflineRepository
+import com.example.mzantsilingo.data.repository.XpResult
+import com.example.mzantsilingo.data.sync.SyncScheduler
 import com.example.mzantsilingo.databinding.ActivityLessonBinding
+import com.example.mzantsilingo.ui.auth.LoginActivity
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
 import java.util.Locale
-import com.example.mzantsilingo.data.local.UserSession
-import com.example.mzantsilingo.data.model.AddXpRequest
-import com.example.mzantsilingo.R
+import android.Manifest
+import android.content.pm.PackageManager
+import android.os.Build
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.core.content.ContextCompat
+import android.app.PendingIntent
+import android.content.Context
+import androidx.core.app.NotificationCompat
+import androidx.core.app.NotificationManagerCompat
 
 /**
- * Displays the content of a selected language lesson.
+ * Shows the words of one lesson, one at a time.
  *
- * The activity retrieves lesson words from the REST API, allows the
- * user to move through the words, and provides Text-to-Speech
- * functionality for pronunciation.
+ * - Words come from the REST API, or from the copy saved on the device when offline.
+ * - The user earns 10 XP for every word in the lesson.
+ * - If the XP cannot be uploaded (no connection), it is saved and uploaded later.
  */
 class LessonActivity : AppCompatActivity(), TextToSpeech.OnInitListener {
 
-    // View binding provides access to the views in activity_lesson.xml.
+    companion object {
+        // XP earned for every word in a lesson (a 5-word lesson gives 50 XP).
+        const val XP_PER_WORD = 10
+    }
+
     private lateinit var binding: ActivityLessonBinding
 
-    // Stores the list of vocabulary words retrieved from the API.
+    // The words of the lesson, always in lesson order.
     private var words: List<Word> = emptyList()
 
-    // Keeps track of the word currently being displayed.
+    // The word currently being displayed.
     private var currentWordIndex = 0
 
-    // Android Text-to-Speech engine used to pronounce isiXhosa words.
-    private lateinit var textToSpeech: TextToSpeech
+    private var lessonId: Int = -1
+    private var lessonTitle: String = "your lesson"
+    private var lessonCompleted = false
+    private var reminderShown = false
+    // True while the XP is being saved, so the button cannot be pressed twice.
+    private var saving = false
 
-    // Indicates whether the Text-to-Speech engine has been successfully initialised.
+    // Android Text-to-Speech engine used to pronounce the words.
+    private lateinit var textToSpeech: TextToSpeech
     private var ttsReady = false
 
+    // Loads words from the API or the saved copy, and queues XP when offline.
+    private val offlineRepository by lazy { OfflineRepository(this) }
+
+    private val notificationPermissionLauncher =
+        registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
+            // Permission result will be handled when we post the notification.
+        }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        LessonNotificationHelper.createNotificationChannel(this)
+        requestNotificationPermission()
 
-        // Inflate the lesson layout using View Binding.
         binding = ActivityLessonBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Initialise Android's built-in Text-to-Speech engine.
         textToSpeech = TextToSpeech(this, this)
 
-        // Retrieve the lesson ID passed from HomeActivity.
-        val lessonId = intent.getIntExtra("LESSON_ID", -1)
+        lessonId = intent.getIntExtra("LESSON_ID", -1)
 
-        // Check whether a valid lesson ID was provided.
         if (lessonId == -1) {
-
-            // Inform the user that the selected lesson could not be found.
-            Toast.makeText(
-                this,
-                "Lesson could not be found.",
-                Toast.LENGTH_SHORT
-            ).show()
-
-            // Close the activity because there is no valid lesson to display.
+            Toast.makeText(this, "Lesson could not be found.", Toast.LENGTH_SHORT).show()
             finish()
             return
         }
 
-        // Configure the lesson buttons.
-        setupButtons()
+        // Show the real lesson name (for example "Numbers 1-5") instead of a fixed title.
+        intent.getStringExtra("LESSON_TITLE")?.let {
+            lessonTitle = it
+            binding.tvLessonTitle.text = it
+        }
 
-        // Retrieve the lesson words from the REST API.
+        setupButtons()
         loadWords(lessonId)
     }
 
-    /**
-     * Called when the Text-to-Speech engine has finished initialising.
-     *
-     * @param status Indicates whether the Text-to-Speech engine was initialised successfully.
-     */
     override fun onInit(status: Int) {
-
-        // Check whether Text-to-Speech initialisation was successful.
         if (status == TextToSpeech.SUCCESS) {
+            val result = textToSpeech.setLanguage(Locale("xh", "ZA"))
 
-            // Try to configure Text-to-Speech for isiXhosa used in South Africa.
-            val result = textToSpeech.setLanguage(
-                Locale("xh", "ZA")
-            )
-
-            // Determine whether the requested language is available.
             ttsReady =
                 result != TextToSpeech.LANG_MISSING_DATA &&
                         result != TextToSpeech.LANG_NOT_SUPPORTED
 
-            // Use the device's default language if isiXhosa speech is unavailable.
             if (!ttsReady) {
-
                 Toast.makeText(
                     this,
                     "isiXhosa speech is not available. Using default speech.",
                     Toast.LENGTH_SHORT
                 ).show()
-
-                // Fall back to the device's default language.
                 textToSpeech.language = Locale.getDefault()
                 ttsReady = true
             }
-
         } else {
-
-            // Inform the user if the Text-to-Speech engine could not initialise.
-            Toast.makeText(
-                this,
-                "Text-to-Speech could not be initialised.",
-                Toast.LENGTH_SHORT
-            ).show()
+            Toast.makeText(this, "Text-to-Speech could not be initialised.", Toast.LENGTH_SHORT).show()
         }
     }
 
-    /**
-     * Sets up the buttons used to navigate and interact with lesson words.
-     */
     private fun setupButtons() {
 
-        // Handle the "I've learned this" / "Complete Lesson" button.
+        // "I've learned this" moves to the next word. On the last word it completes the lesson.
         binding.btnLearned.setOnClickListener {
-
-            // Do nothing if no lesson words have been loaded.
-            if (words.isEmpty()) {
+            if (words.isEmpty() || saving) {
                 return@setOnClickListener
             }
 
-            // Move to the next word if the current word is not the last one.
             if (currentWordIndex < words.lastIndex) {
-
                 currentWordIndex++
-
-                // Display the next word.
                 showCurrentWord()
-
             } else {
-
-                // Complete the lesson when the final word has been reached.
                 completeLesson()
             }
         }
 
-        // Handle the pronunciation button.
         binding.btnListen.setOnClickListener {
-
-            // Only attempt to speak when words are available
-            // and Text-to-Speech has been successfully initialised.
             if (words.isNotEmpty() && ttsReady) {
-
-                // Retrieve the word currently displayed on screen.
-                val currentWord =
-                    words[currentWordIndex]
-
-                // Pronounce the selected isiXhosa word.
-                speakWord(currentWord.xhosaWord)
+                speakWord(words[currentWordIndex].xhosaWord)
             }
         }
     }
 
-    /**
-     * Uses Android Text-to-Speech to pronounce a word.
-     *
-     * @param word The word that should be spoken.
-     */
     private fun speakWord(word: String) {
-
-        // Speak the supplied word and replace any speech already in the queue.
-        textToSpeech.speak(
-            word,
-            TextToSpeech.QUEUE_FLUSH,
-            null,
-            "MzansiLingoWord"
-        )
+        textToSpeech.speak(word, TextToSpeech.QUEUE_FLUSH, null, "MzansiLingoWord")
     }
 
     /**
-     * Retrieves the vocabulary words for the selected lesson from the REST API.
-     *
-     * @param lessonId ID of the lesson whose words should be loaded.
+     * Loads the words of the lesson. They come from the REST API, or from the
+     * saved copy when there is no connection.
      */
     private fun loadWords(lessonId: Int) {
 
-        // Display the loading indicator while the API request is running.
-        binding.loadingProgress.visibility =
-            android.view.View.VISIBLE
+        binding.loadingProgress.visibility = View.VISIBLE
+        val cacheEnabled = SettingsPreferences(this).offlineLessons
 
-        // Launch the API request inside a lifecycle-aware coroutine.
         lifecycleScope.launch {
 
-            try {
+            val result = offlineRepository.loadWords(lessonId, cacheEnabled)
 
-                // Request the words belonging to the selected lesson.
-                val response =
-                    RetrofitClient.apiService.getWords(lessonId)
+            binding.loadingProgress.visibility = View.GONE
 
-                // Hide the loading indicator after receiving the response.
-                binding.loadingProgress.visibility =
-                    android.view.View.GONE
+            when (result) {
 
-                // Check whether the API request was successful
-                // and returned a response body.
-                if (response.isSuccessful && response.body() != null) {
+                is LoadResult.Loaded -> {
+                    // Always show the words in lesson order.
+                    words = result.data.sortedBy { it.id }
 
-                    // Store the returned vocabulary words.
-                    words = response.body()!!
-
-                    // Check whether the lesson contains any words.
                     if (words.isEmpty()) {
-
                         Toast.makeText(
                             this@LessonActivity,
                             "No words found for this lesson.",
                             Toast.LENGTH_SHORT
                         ).show()
-
-                        // Close the activity because there is no lesson content to display.
                         finish()
                         return@launch
                     }
 
-                    // Start from the first word in the lesson.
-                    currentWordIndex = 0
+                    if (result.fromCache) {
+                        Snackbar.make(binding.root, R.string.offline_showing_saved, Snackbar.LENGTH_LONG).show()
+                    }
 
-                    // Display the first word.
+                    currentWordIndex = intent.getIntExtra("RESUME_WORD_INDEX", 0)
+                        .coerceIn(0, words.lastIndex)
                     showCurrentWord()
-
-                } else {
-
-                    // Inform the user when the API could not provide lesson content.
-                    Toast.makeText(
-                        this@LessonActivity,
-                        "Unable to load lesson content.",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
 
-            } catch (e: Exception) {
-
-                // Hide the loading indicator if a connection error occurs.
-                binding.loadingProgress.visibility =
-                    android.view.View.GONE
-
-                // Inform the user that the application could not reach the server.
-                Toast.makeText(
-                    this@LessonActivity,
-                    "Could not connect to the server.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                is LoadResult.Failed -> {
+                    Snackbar.make(binding.root, R.string.offline_no_saved, Snackbar.LENGTH_LONG).show()
+                }
             }
         }
     }
 
-    /**
-     * Updates the screen with the currently selected vocabulary word.
-     */
+    // Shows the current word, "Word 2 of 5" and the progress bar.
     private fun showCurrentWord() {
+        val currentWord = words[currentWordIndex]
+        val currentNumber = currentWordIndex + 1
+        val totalWords = words.size
 
-        // Retrieve the word currently being displayed.
-        val currentWord =
-            words[currentWordIndex]
+        binding.tvXhosaWord.text = currentWord.xhosaWord
+        binding.tvEnglishMeaning.text = currentWord.englishMeaning
+        binding.tvWordCounter.text = getString(R.string.lesson_word_progress, currentNumber, totalWords)
+        binding.lessonProgress.progress = ((currentNumber.toFloat() / totalWords) * 100).toInt()
 
-        // Display the isiXhosa word.
-        binding.tvXhosaWord.text =
-            currentWord.xhosaWord
+        updateButton()
+    }
 
-        // Display the English meaning of the word.
-        binding.tvEnglishMeaning.text =
-            currentWord.englishMeaning
-
-        // Convert the zero-based index into a user-friendly word number.
-        val currentNumber =
-            currentWordIndex + 1
-
-        // Determine the total number of words in the lesson.
-        val totalWords =
-            words.size
-
-        // Display the current word position to the user.
-        binding.tvWordCounter.text =
-            "Word $currentNumber of $totalWords"
-        getString(R.string.lesson_word_progress, currentNumber, totalWords)
-
-        // Calculate lesson progress as a percentage.
-        val progress =
-            ((currentNumber.toFloat() / totalWords) * 100).toInt()
-
-        // Update the lesson progress bar.
-        binding.lessonProgress.progress =
-            progress
-
-        // Change the button text when the final word is displayed.
-        if (currentWordIndex == words.lastIndex) {
-
-            binding.btnLearned.text =
-                "Complete Lesson"
-            getString(R.string.lesson_complete_button)
-
-        } else {
-
-            // Keep the normal button text while there are more words to learn.
-            binding.btnLearned.text =
-                "I've learned this"
-            getString(R.string.lesson_learned)
+    // The button says "I've learned this", or "Complete Lesson" on the last word.
+    private fun updateButton() {
+        binding.btnLearned.isEnabled = !saving
+        binding.btnLearned.text = when {
+            saving -> getString(R.string.lesson_saving)
+            currentWordIndex == words.lastIndex -> getString(R.string.lesson_complete_button)
+            else -> getString(R.string.lesson_learned)
         }
     }
 
     /**
-     * Completes the current lesson and awards XP to the logged-in user.
+     * Completes the lesson and awards 10 XP for every word.
+     *
+     * The lesson always completes: if the XP cannot be uploaded right now it is
+     * saved on the device and uploaded automatically when the connection is back.
      */
     private fun completeLesson() {
 
-        // Retrieve the currently logged-in user's ID from the local session.
         val userId = UserSession.getUserId(this)
 
-        // Check whether a logged-in user session exists.
         if (userId == null) {
-
-            // Inform the user that their session is no longer available.
-            Toast.makeText(
-                this,
-                "User session not found. Please log in again.",
-                Toast.LENGTH_SHORT
-            ).show()
-
+            // Nobody is logged in: send the user to the login screen.
+            Toast.makeText(this, R.string.msg_session_missing, Toast.LENGTH_LONG).show()
+            val intent = Intent(this, LoginActivity::class.java)
+            intent.flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
+            startActivity(intent)
+            finish()
             return
         }
 
-        // Launch the XP update request inside a lifecycle-aware coroutine.
+        val xpEarned = words.size * XP_PER_WORD
+
+        saving = true
+        updateButton()
+
         lifecycleScope.launch {
+            // Save lesson completion locally first.
+            offlineRepository.recordLessonCompleted(
+                userId = userId,
+                lessonId = lessonId
+            )
 
-            try {
+            // Then award XP using the existing online/offline flow.
+            when (offlineRepository.addXp(userId, xpEarned)) {
 
-                // Award 50 XP to the logged-in user.
-                val response = RetrofitClient.apiService.addXp(
-                    userId,
-                    AddXpRequest(xp = 50)
-                )
+                XpResult.SYNCED -> openCompleteScreen(xpEarned)
 
-                // Check whether the XP update was successful.
-                if (response.isSuccessful && response.body() != null) {
-
-                    // Create an Intent to open the lesson completion screen.
-                    val intent = android.content.Intent(
-                        this@LessonActivity,
-                        LessonCompleteActivity::class.java
-                    )
-
-                    // Pass the number of words learned to the completion screen.
-                    intent.putExtra(
-                        "WORDS_LEARNED",
-                        words.size
-                    )
-
-                    // Pass the amount of XP earned to the completion screen.
-                    intent.putExtra(
-                        "XP_EARNED",
-                        50
-                    )
-
-                    // Open the lesson completion screen.
-                    startActivity(intent)
-
-                    // Close the current lesson screen.
-                    finish()
-
-                } else {
-
-                    // Inform the user if the XP could not be saved.
-                    Toast.makeText(
-                        this@LessonActivity,
-                        "Could not save your XP. Please try again.",
-                        Toast.LENGTH_SHORT
-                    ).show()
+                XpResult.QUEUED -> {
+                    // No connection (or the server is busy): upload the XP later.
+                    SyncScheduler.schedule(this@LessonActivity)
+                    Toast.makeText(this@LessonActivity, R.string.offline_xp_saved, Toast.LENGTH_LONG).show()
+                    openCompleteScreen(xpEarned)
                 }
 
-            } catch (e: Exception) {
-
-                // Inform the user if the application cannot connect to the server.
-                Toast.makeText(
-                    this@LessonActivity,
-                    "Could not connect to the server.",
-                    Toast.LENGTH_SHORT
-                ).show()
+                XpResult.FAILED -> {
+                    saving = false
+                    updateButton()
+                    Toast.makeText(this@LessonActivity, R.string.msg_xp_failed, Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+    private fun requestNotificationPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+            if (ContextCompat.checkSelfPermission(
+                    this,
+                    Manifest.permission.POST_NOTIFICATIONS
+                ) != PackageManager.PERMISSION_GRANTED
+            ) {
+                notificationPermissionLauncher.launch(
+                    Manifest.permission.POST_NOTIFICATIONS
+                )
             }
         }
     }
 
-    /**
-     * Releases the Text-to-Speech resources when the activity is destroyed.
-     */
+    // Opens the "Lesson Complete" screen and closes the lesson.
+    private fun openCompleteScreen(xpEarned: Int) {
+        lessonCompleted = true
+
+        val intent = Intent(this, LessonCompleteActivity::class.java)
+        intent.putExtra("WORDS_LEARNED", words.size)
+        intent.putExtra("XP_EARNED", xpEarned)
+        startActivity(intent)
+        finish()
+    }
+    override fun onUserLeaveHint() {
+        super.onUserLeaveHint()
+
+        if (
+            words.isNotEmpty() &&
+            lessonId != -1 &&
+            !saving &&
+            !lessonCompleted &&
+            !reminderShown
+        ) {
+            reminderShown = true
+
+            LessonNotificationHelper.showLessonReminder(
+                context = this,
+                lessonId = lessonId,
+                lessonTitle = lessonTitle,
+                wordIndex = currentWordIndex
+            )
+        }
+    }
     override fun onDestroy() {
-
-        // Check that the Text-to-Speech engine has been initialised
-        // before attempting to stop and shut it down.
         if (::textToSpeech.isInitialized) {
-
-            // Stop any speech that is currently playing.
             textToSpeech.stop()
-
-            // Release the Text-to-Speech resources.
             textToSpeech.shutdown()
         }
-
         super.onDestroy()
     }
 }

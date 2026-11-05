@@ -46,13 +46,15 @@ public class LessonsController : ControllerBase
 
         return Ok(lesson);
     }
+
     // GET: api/lessons/1/words
     [HttpGet("{lessonId}/words")]
     public async Task<IActionResult> GetWords(int lessonId)
     {
-        // Retrieve all words belonging to the selected lesson.
+        // Retrieve all words belonging to the selected lesson, in lesson order.
         var words = await _context.Words
             .Where(w => w.LessonId == lessonId)
+            .OrderBy(w => w.Id)
             .ToListAsync();
 
         return Ok(words);

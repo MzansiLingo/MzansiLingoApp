@@ -6,150 +6,122 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.example.mzantsilingo.R
+import com.example.mzantsilingo.data.local.SettingsPreferences
+import com.example.mzantsilingo.data.local.UserSession
 import com.example.mzantsilingo.data.model.api.RetrofitClient
+import com.example.mzantsilingo.data.repository.LoadResult
+import com.example.mzantsilingo.data.repository.OfflineRepository
+import com.example.mzantsilingo.data.sync.SyncScheduler
 import com.example.mzantsilingo.databinding.ActivityHomeBinding
 import com.example.mzantsilingo.ui.lesson.LessonActivity
 import com.example.mzantsilingo.ui.lesson.LessonAdapter
 import com.example.mzantsilingo.ui.profile.ProfileActivity
 import com.example.mzantsilingo.ui.settings.SettingsActivity
+import com.google.android.material.snackbar.Snackbar
 import kotlinx.coroutines.launch
-import com.example.mzantsilingo.data.local.SettingsPreferences
 
 /**
  * Home screen of the MzansiLingo application.
  *
- * Displays the user's main dashboard and available language lessons.
+ * Shows the user's total XP and the available lessons. Lessons come from the
+ * REST API and are saved on the device (Room) so they still show without internet.
  */
 class HomeActivity : AppCompatActivity() {
 
-    // View binding used to access the views defined in activity_home.xml.
     private lateinit var binding: ActivityHomeBinding
-
-    // Adapter used to display lessons inside the RecyclerView.
     private lateinit var lessonAdapter: LessonAdapter
+
+    // Offline feature: loads lessons from the API or from the saved copy.
+    private val offlineRepository by lazy { OfflineRepository(this) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // Inflate the layout using View Binding.
         binding = ActivityHomeBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        // Open the Profile screen when the profile button is clicked.
         binding.btnProfile.setOnClickListener {
-            startActivity(
-                Intent(
-                    this,
-                    ProfileActivity::class.java
-                )
-            )
+            startActivity(Intent(this, ProfileActivity::class.java))
         }
 
-        // Open the Settings screen when the settings button is clicked.
         binding.btnSettings.setOnClickListener {
-            startActivity(
-                Intent(
-                    this,
-                    SettingsActivity::class.java
-                )
-            )
+            startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        // Configure the lessons RecyclerView.
         setupLessonsRecyclerView()
+    }
 
-        // Retrieve the available lessons from the REST API.
+    // Reload every time the screen is shown, so a new XP total, a changed learning
+    // language or a restored connection is picked up straight away.
+    override fun onResume() {
+        super.onResume()
+
+        // Upload any XP that was earned while offline.
+        SyncScheduler.schedule(this)
+
+        loadXp()
         loadLessons()
     }
 
-    /**
-     * Sets up the RecyclerView used to display available lessons.
-     */
     private fun setupLessonsRecyclerView() {
-
-        // Create the lesson adapter with an initially empty list.
-        // The lambda is called when the user selects a lesson.
-        lessonAdapter = LessonAdapter(
-            emptyList()
-        ) { lesson ->
-
-            // Create an Intent to open the selected lesson.
-            val intent = Intent(
-                this,
-                LessonActivity::class.java
-            )
-
-            // Pass the selected lesson ID to LessonActivity.
-            intent.putExtra(
-                "LESSON_ID",
-                lesson.id
-            )
-
-            // Start the lesson screen.
+        lessonAdapter = LessonAdapter(emptyList()) { lesson ->
+            val intent = Intent(this, LessonActivity::class.java)
+            intent.putExtra("LESSON_ID", lesson.id)
+            intent.putExtra("LESSON_TITLE", lesson.title)
             startActivity(intent)
         }
 
-        // Set the layout manager that controls how lessons are arranged.
-        binding.rvLessons.layoutManager =
-            LinearLayoutManager(this)
-
-        // Connect the lesson adapter to the RecyclerView.
+        binding.rvLessons.layoutManager = LinearLayoutManager(this)
         binding.rvLessons.adapter = lessonAdapter
     }
 
+    // Shows the user's total XP in the XP card.
+    private fun loadXp() {
+        val userId = UserSession.getUserId(this) ?: return
+
+        lifecycleScope.launch {
+            try {
+                val response = RetrofitClient.apiService.getXp(userId)
+                val body = response.body()
+                if (response.isSuccessful && body != null) {
+                    binding.tvXp.text = getString(R.string.xp_format, body.totalXp)
+                }
+            } catch (e: Exception) {
+                // Offline: keep the value that is already shown.
+            }
+        }
+    }
+
     /**
-     * Loads the available isiXhosa lessons from the REST API.
+     * Loads the lessons for the learning language chosen in Settings.
+     * With no connection, the saved lessons are shown instead.
      */
     private fun loadLessons() {
+        val prefs = SettingsPreferences(this)
+        val language = prefs.learningLanguage
+        val cacheEnabled = prefs.offlineLessons
 
-        // Launch the API request inside a lifecycle-aware coroutine.
         lifecycleScope.launch {
+            when (val result = offlineRepository.loadLessons(language, cacheEnabled)) {
 
-            try {
+                is LoadResult.Loaded -> {
+                    lessonAdapter.updateLessons(result.data)
 
-                // Request isiXhosa lessons from the REST API.
-                val response =
-                    RetrofitClient.apiService.getLessons(SettingsPreferences(this@HomeActivity).learningLanguage)
-
-                // Check that the API request was successful
-                // and that a response body was returned.
-                if (response.isSuccessful && response.body() != null) {
-
-                    // Retrieve the list of lessons from the response.
-                    val lessons = response.body()!!
-
-                    // Update the RecyclerView with the lessons received from the API.
-                    lessonAdapter.updateLessons(lessons)
-
-                    // Inform the user if the API returned no lessons.
-                    if (lessons.isEmpty()) {
-
-                        Toast.makeText(
-                            this@HomeActivity,
-                            "No lessons available.",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                    if (result.fromCache) {
+                        Snackbar.make(binding.root, R.string.offline_showing_saved, Snackbar.LENGTH_LONG).show()
+                    } else if (result.data.isEmpty()) {
+                        Toast.makeText(this@HomeActivity, "No lessons available.", Toast.LENGTH_SHORT).show()
+                    } else if (cacheEnabled) {
+                        // Online with Offline Lessons on: also save the words of every lesson.
+                        offlineRepository.prefetchWords(result.data)
                     }
-
-                } else {
-
-                    // Display an error message when the API request fails.
-                    Toast.makeText(
-                        this@HomeActivity,
-                        "Unable to load lessons.",
-                        Toast.LENGTH_SHORT
-                    ).show()
                 }
 
-            } catch (e: Exception) {
-
-                // Display a connection error if the API request
-                // throws an exception.
-                Toast.makeText(
-                    this@HomeActivity,
-                    "Connection error: ${e.message}",
-                    Toast.LENGTH_LONG
-                ).show()
+                is LoadResult.Failed -> {
+                    lessonAdapter.updateLessons(emptyList())
+                    Snackbar.make(binding.root, R.string.offline_no_saved, Snackbar.LENGTH_LONG).show()
+                }
             }
         }
     }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="msg_account_created_login">Account created! Please log in.</string>
+    <string name="lesson_saving">Saving...</string>
+    <string name="xp_format">%1$d XP</string>
+    <string name="msg_session_missing">Your session has expired. Please log in again.</string>
+    <string name="msg_xp_failed">Could not save your XP. Please try again.</string>
+    <string name="offline_showing_saved">You’re offline. Showing your saved lessons.</string>
+    <string name="offline_no_saved">No connection and no saved lessons. Turn on Offline Lessons in Settings while you are online.</string>
+    <string name="offline_xp_saved">No connection. Your XP is saved and will upload automatically.</string>
+    <string name="offline_downloaded">%1$d lessons saved for offline use</string>
+    <string name="offline_download_failed">Could not download the lessons. Check your connection and try again.</string>
+</resources>

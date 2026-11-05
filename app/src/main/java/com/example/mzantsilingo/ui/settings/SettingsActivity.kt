@@ -15,6 +15,8 @@ import com.example.mzantsilingo.data.repository.SettingsRepository
 import com.example.mzantsilingo.databinding.ActivitySettingsBinding
 import com.example.mzantsilingo.ui.auth.LoginActivity
 import kotlinx.coroutines.launch
+import com.example.mzantsilingo.data.repository.OfflineRepository
+import android.widget.Toast
 
 class SettingsActivity : AppCompatActivity() {
 
@@ -26,6 +28,9 @@ class SettingsActivity : AppCompatActivity() {
 
     // Used to send the user's settings to the backend.
     private val settingsRepository = SettingsRepository()
+
+    // Saves lessons and words on the device for offline use.
+    private val offlineRepository by lazy { OfflineRepository(this) }
 
     // Languages that the user can LEARN.
     private val languages = listOf("isiXhosa", "Afrikaans")
@@ -74,9 +79,18 @@ class SettingsActivity : AppCompatActivity() {
             syncToBackend()
         }
 
+        // Offline Lessons: ON saves the lessons and words on the device, OFF removes them.
         binding.switchOfflineLessons.setOnCheckedChangeListener { _, isChecked ->
             prefs.offlineLessons = isChecked
             syncToBackend()
+
+            lifecycleScope.launch {
+                if (isChecked) {
+                    downloadLessonsForOffline()
+                } else {
+                    offlineRepository.clearCache()
+                }
+            }
         }
 
         // Open the language pickers.
@@ -137,10 +151,26 @@ class SettingsActivity : AppCompatActivity() {
                     getString(R.string.language_value_format, selected)
                 syncToBackend()
                 dialog.dismiss()
+
+                // Keep the saved lessons in step with the language being learned.
+                if (prefs.offlineLessons) {
+                    lifecycleScope.launch { downloadLessonsForOffline() }
+                }
             }
             .setNegativeButton(R.string.cancel, null)
             .show()
     }
+
+    // Downloads all lessons and words for the current learning language.
+    private suspend fun downloadLessonsForOffline() {
+        val count = offlineRepository.downloadAll(prefs.learningLanguage)
+        val message =
+            if (count != null) getString(R.string.offline_downloaded, count)
+            else getString(R.string.offline_download_failed)
+        Toast.makeText(this, message, Toast.LENGTH_LONG).show()
+    }
+
+    // Sends the current settings from the device to the backend.
 
     // Sends the current settings from the device to the backend.
     private fun syncToBackend() {

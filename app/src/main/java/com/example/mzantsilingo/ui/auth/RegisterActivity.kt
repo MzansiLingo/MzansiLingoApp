@@ -5,12 +5,10 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.lifecycle.lifecycleScope
+import com.example.mzantsilingo.R
 import com.example.mzantsilingo.data.model.repository.AuthRepository
 import com.example.mzantsilingo.databinding.ActivityRegisterBinding
-import com.example.mzantsilingo.ui.language.LanguageSelectionActivity
 import kotlinx.coroutines.launch
-import com.example.mzantsilingo.data.local.UserSession
-import com.example.mzantsilingo.R
 
 class RegisterActivity : AppCompatActivity() {
 
@@ -29,47 +27,36 @@ class RegisterActivity : AppCompatActivity() {
             val password = binding.etPassword.text.toString()
 
             if (fullName.isEmpty() || email.isEmpty() || username.isEmpty() || password.isEmpty()) {
-                Toast.makeText(this, "Please fill in all fields", Toast.LENGTH_SHORT).show()
-                getString(R.string.msg_fill_all_fields)
+                Toast.makeText(this, getString(R.string.msg_fill_all_fields), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
             if (password.length < 8) {
-                Toast.makeText(this, "Password must be at least 8 characters", Toast.LENGTH_SHORT).show()
-                getString(R.string.msg_password_min)
+                Toast.makeText(this, getString(R.string.msg_password_min), Toast.LENGTH_SHORT).show()
                 return@setOnClickListener
             }
 
+            // Stop double taps while the request is running.
+            binding.btnSignUp.isEnabled = false
+
             lifecycleScope.launch {
-                val result = authRepository.register(
-                    fullName,
-                    email,
-                    username,
-                    password
-                )
+                val result = authRepository.register(fullName, email, username, password)
 
-                result.onSuccess { user ->
-
-                    user.id?.let { UserSession.saveUserId(this@RegisterActivity, it) }
-
+                result.onSuccess {
                     Toast.makeText(
                         this@RegisterActivity,
-                        "Account created!",
-                        Toast.LENGTH_SHORT
+                        getString(R.string.msg_account_created_login),
+                        Toast.LENGTH_LONG
                     ).show()
-                    getString(R.string.msg_account_created)
 
-                    startActivity(
-                        Intent(
-                            this@RegisterActivity,
-                            LanguageSelectionActivity::class.java
-                        )
-                    )
-
+                    // After registering, the user logs in with the details they just used.
+                    val intent = Intent(this@RegisterActivity, LoginActivity::class.java)
+                    intent.putExtra("EMAIL", email)
+                    startActivity(intent)
                     finish()
 
                 }.onFailure {
-
+                    binding.btnSignUp.isEnabled = true
                     Toast.makeText(
                         this@RegisterActivity,
                         it.message ?: "Registration failed",

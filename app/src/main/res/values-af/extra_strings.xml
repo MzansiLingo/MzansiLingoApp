@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="msg_account_created_login">Rekening geskep! Teken asseblief in.</string>
+    <string name="lesson_saving">Stoor tans...</string>
+    <string name="xp_format">%1$d XP</string>
+    <string name="msg_session_missing">Jou sessie het verval. Teken asseblief weer in.</string>
+    <string name="msg_xp_failed">Kon nie jou XP stoor nie. Probeer asseblief weer.</string>
+    <string name="offline_showing_saved">Jy is vanlyn. Wys jou gestoorde lesse.</string>
+    <string name="offline_no_saved">Geen verbinding en geen gestoorde lesse nie. Skakel Vanlyn Lesse in Instellings aan terwyl jy aanlyn is.</string>
+    <string name="offline_xp_saved">Geen verbinding. Jou XP is gestoor en sal outomaties oplaai.</string>
+    <string name="offline_downloaded">%1$d lesse gestoor vir vanlyn gebruik</string>
+    <string name="offline_download_failed">Kon nie die lesse aflaai nie. Kontroleer jou verbinding en probeer weer.</string>
+</resources>
